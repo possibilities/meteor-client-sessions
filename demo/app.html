@@ -1,0 +1,63 @@
+<head>
+  <title>User Sessions</title>
+</head>
+
+<body>
+  {{> demo}}
+</body>
+
+<template name="demo">
+  <h1>User Sessions</h1>
+
+  <p><em>A Meteor lib for tracking users across requests</em></p>
+
+  <div>
+    {{#if successMessage}}
+      <div id="successMessage" class="alert alert-success">{{successMessage}}</div>
+    {{/if}}
+    
+    {{#if sessionId}}
+      <div class="well">
+        <h3>Your session ID!</h3>
+
+        <div id="sessionInfoWrapper">
+          <p>{{sessionId}}</p>
+        </div>
+
+        <h4>When does it expire?!</h4>
+        <p>Your session expires <em>{{#if rememberUntil}}{{rememberUntil}}{{else}}when you close this browser window{{/if}}</em>.</p>
+
+        <h4>Mess with it!</h4>
+
+        <div id="sessionButtonsWrapper">
+          <!-- <p class="pull-left"><input id="deleteSession" class="btn btn-primary" type="submit" value="Delete session!" /></p> -->
+          <p><input id="refreshUserSession" class="pull-left btn btn-primary" type="submit" value="Refresh session ID!" /></p>
+          <p><input id="rememberUserSession" class="pull-left btn btn-primary" type="submit" value="Remember me!" /></p>
+          <p><input id="forgetUserSession" class="pull-left btn btn-primary" type="submit" value="Forget me when I close my browser!" /></p>
+          <p><input id="forgetUserSessionNow" class="btn btn-primary" type="submit" value="Forget me now!" /></p>
+          <!-- class="pull-left" -->
+          <!-- <p><input id="deleteCookie" class="btn btn-primary" type="submit" value="Delete cookie!" /></p> -->
+        </div>
+      </div>
+
+      <div class="well">
+        <h3>Add your name to your session!</h3>
+        
+        {{#if userName}}
+          <p>Your name is {{userName}}!</p>
+        {{/if}}
+
+        <h4>Who are you?</h4>
+
+        <div id="setValueWrapper">
+          <input id="setUserNameInput" class="pull-left" type="text" placeholder="Your name!" />
+          <input id="setUserNameButton" class="btn btn-primary" type="submit" value="Do it!" />
+        </div>
+      </div>
+    {{else}}
+      <div class="well">
+        <em>No session... you shouldn't see this for very long.</em>
+      </div>
+    {{/if}}
+  </div>
+</template>
