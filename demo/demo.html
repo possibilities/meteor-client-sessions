@@ -1,13 +1,14 @@
 <head>
-  <title>User Sessions</title>
+  <title>Client Sessions</title>
 </head>
 
 <body>
   {{> demo}}
+  {{> forkMe}}
 </body>
 
 <template name="demo">
-  <h1>User Sessions</h1>
+  <h1>Client Sessions</h1>
 
   <p><em>A Meteor lib for tracking users across requests</em></p>
 
@@ -24,19 +25,16 @@
           <p>{{sessionId}}</p>
         </div>
 
-        <h4>When does it expire?!</h4>
+        <h4>When does it expire?</h4>
         <p>Your session expires <em>{{#if rememberUntil}}{{rememberUntil}}{{else}}when you close this browser window{{/if}}</em>.</p>
 
         <h4>Mess with it!</h4>
 
         <div id="sessionButtonsWrapper">
-          <!-- <p class="pull-left"><input id="deleteSession" class="btn btn-primary" type="submit" value="Delete session!" /></p> -->
-          <p><input id="refreshUserSession" class="pull-left btn btn-primary" type="submit" value="Refresh session ID!" /></p>
-          <p><input id="rememberUserSession" class="pull-left btn btn-primary" type="submit" value="Remember me!" /></p>
-          <p><input id="forgetUserSession" class="pull-left btn btn-primary" type="submit" value="Forget me when I close my browser!" /></p>
-          <p><input id="forgetUserSessionNow" class="btn btn-primary" type="submit" value="Forget me now!" /></p>
-          <!-- class="pull-left" -->
-          <!-- <p><input id="deleteCookie" class="btn btn-primary" type="submit" value="Delete cookie!" /></p> -->
+          <p><input id="refreshClientSession" class="pull-left btn btn-primary" type="submit" value="Refresh session ID!" /></p>
+          <p><input id="rememberClientSession" class="pull-left btn btn-primary" type="submit" value="Remember me!" /></p>
+          <p><input id="forgetClientSession" class="pull-left btn btn-primary" type="submit" value="Forget me!" /></p>
+          <p><input id="deleteCookies" class="btn btn-primary" type="submit" value="Delete my cookies!" /></p>
         </div>
       </div>
 
@@ -44,7 +42,7 @@
         <h3>Add your name to your session!</h3>
         
         {{#if userName}}
-          <p>Your name is {{userName}}!</p>
+          <p><em>Your name is</em> <strong>{{userName}}</strong></p>
         {{/if}}
 
         <h4>Who are you?</h4>
@@ -59,7 +57,9 @@
         <em>No session... you shouldn't see this for very long.</em>
       </div>
     {{/if}}
-    
-    <a href="https://github.com/possibilities/user-sessions"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </div>
+</template>
+
+<template name="forkMe">
+  <a href="https://github.com/possibilities/meteor-client-sessions"><img class="forkMe" style="position: absolute; top: 0; right: 0; border: 0;" data-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
 </template>
