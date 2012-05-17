@@ -17,6 +17,8 @@ Package.on_use(function(api) {
   api.add_files('client.js', 'client');
   api.add_files('server.js', 'server');
   api.add_files('common.js', ['client', 'server']);
+  // Models
+  api.add_files('models/client_session.js', ['client', 'server']);
   // Libraries
   api.add_files('utils/server.js', 'server');
 });
