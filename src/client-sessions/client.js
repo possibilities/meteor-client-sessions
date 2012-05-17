@@ -12,7 +12,7 @@ var ClientSessionConfig = function(options) {
 
 var clientSessionConfig = new ClientSessionConfig();
 
-Meteor.subscribe("clientSessionFeed", {
+Meteor.subscribe("clientSessions", {
   sessionCookie: Cookie.get(clientSessionConfig.sessionKey),
   rememberCookie: Cookie.get(clientSessionConfig.rememberKey)
 });

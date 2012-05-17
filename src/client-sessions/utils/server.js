@@ -28,11 +28,12 @@ Utils.decodeRememberToken = function(encodedRememberToken) {
   var tokenParts = encodedRememberToken.split('--');
   var rememberToken = _.first(tokenParts);
   var digest = _.last(tokenParts);
-  var session = ClientSessions.findOne(rememberToken);
-  if (session) {
+  var key = ClientSessionKeys.findOne(rememberToken);
+  if (key) {
+    var session = ClientSessions.findOne(key.sessionId);
     var hash = Utils.generateHmac(session.rememberSalt, rememberToken);
     if (hash === digest) {
-      return rememberToken;
+      return key._id;
     }
   }
 };

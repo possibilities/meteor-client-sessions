@@ -8,17 +8,16 @@ Secure.noDataMagic('clientSessions', 'clientSessionKeys');
 SessionHelpers = {
   createOrRestoreSession: function(client) {
     var sessionId;
-    if (client && (client.rememberCookie || client.sessionCookie)) {
+    client = client || {};
+    if (client.rememberCookie || client.sessionCookie) {
       sessionId = this.restoreSession(client);
     }
-    return sessionId || this.createSession();
-  },
-
-  createKeyForSession: function(sessionId) {
-    return ClientSessionKeys.insert({
-      createdAt: new Date(),
-      sessionId: sessionId
-    });
+    if (sessionId) {
+      this.createLatestKeyForSession(sessionId);
+    } else {
+      sessionId = this.createSession();
+    }
+    return sessionId;
   },
 
   createSession: function() {
@@ -26,25 +25,33 @@ SessionHelpers = {
       createdAt: new Date(),
       client: {}
     });
-    var key = SessionHelpers.createKeyForSession(sessionId);
-    ClientSessions.update(sessionId, {
-      $set: { latestKey: key }
-    });
+    this.createLatestKeyForSession(sessionId);
 
     return sessionId;
   },
 
   restoreSession: function(client) {
-    var key, session;
-    if (client.sessionCookie && (key = ClientSessionKeys.findOne(client.sessionCookie))) {
-      if (key && (session = ClientSessions.findOne(key.sessionId))) {
-        return session._id;
+    var key, sessionKeyId;
+
+    if (client.sessionCookie) {
+      sessionKeyId = client.sessionCookie;
+    } else {
+      sessionKeyId = Utils.decodeRememberToken(client.rememberCookie);
+    }
+
+    if (sessionKeyId) {
+      key = ClientSessionKeys.findOne(sessionKeyId)
+      if (key) {
+        if (ClientSessions.find(key.sessionId).count() > 0) {
+          return key.sessionId;
+        }
       }
     }
+    
   }, 
   
   clearSession: function(sessionId) {
-    var key = SessionHelpers.createKeyForSession(sessionId);
+    var key = this.createKeyForSession(sessionId);
     ClientSessions.update(sessionId, {
       $unset: {
         rememberCookie: true,
@@ -57,20 +64,31 @@ SessionHelpers = {
         client: {}
       }
     });
+  },
+
+  createKeyForSession: function(sessionId) {
+    return ClientSessionKeys.insert({
+      createdAt: new Date(),
+      sessionId: sessionId
+    });
+  },
+
+  createLatestKeyForSession: function(sessionId) {
+    var key = this.createKeyForSession(sessionId);
+    ClientSessions.update(sessionId, {
+      $set: { latestKey: key }
+    });
   }
 };
 
-Meteor.publish('clientSessionFeed', function(client) {
+Meteor.publish('clientSessions', function(client) {
   var sessionId = SessionHelpers.createOrRestoreSession(client);
   return ClientSessions.find({ _id: sessionId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
 });
 
 Meteor.methods({
   refreshClientSession: function(sessionId) {
-    var key = SessionHelpers.createKeyForSession(sessionId);
-    ClientSessions.update(sessionId, {
-      $set: { latestKey: key }
-    });
+    SessionHelpers.createLatestKeyForSession(sessionId);
   },
   rememberClientSession: function(sessionId) {
     var rememberSalt = Meteor.uuid();
@@ -80,7 +98,7 @@ Meteor.methods({
       rememberSalt: rememberSalt,
       rememberedAt: new Date(),
       rememberForNDays: 15,
-      rememberCookie: Utils.encodeRememberToken(rememberSalt, sessionId)
+      rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
     ClientSessions.update(sessionId, { $set: rememberValues });
   },
