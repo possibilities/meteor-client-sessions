@@ -39,7 +39,7 @@ ClientSessionHelpers = {
     if (!_.isBlank(name)) {
       var clientSession = ClientSessions.findOne();
       if (clientSession) {
-        Meteor.call('setUserName', name, clientSession._id);
+        Meteor.call('setUserName', name);
         $nameElement.attr('value', '');
         Session.set('successMessage', 'Nice, you added your name to your session!');
       }
@@ -64,23 +64,20 @@ ClientSessionHelpers = {
 
 Template.demo.events = {
   'click #refreshClientSession': function() {
-    var clientSession = ClientSessions.findOne();
-    if (clientSession) {
-      Meteor.call('refreshClientSession', clientSession._id);
-    }
+    Meteor.call('refreshClientSession');
     Session.set('successMessage', 'Kool, your session is being refreshed! You should get a new session ID but if you set your name below it will be remembered.');
   },
   'click #rememberClientSession': function() {
     var clientSession = ClientSessions.findOne();
     if (clientSession) {
-      Meteor.call('rememberClientSession', clientSession._id);
+      Meteor.call('rememberClientSession');
     }
     Session.set('successMessage', "Awesome, we'll remember your session even if you close your browser.");
   },
   'click #forgetClientSession': function() {
     var clientSession = ClientSessions.findOne();
     if (clientSession) {
-      Meteor.call('forgetClientSession', clientSession._id);
+      Meteor.call('forgetClientSession');
     }
     Session.set('successMessage', "Who are you again?");
   },

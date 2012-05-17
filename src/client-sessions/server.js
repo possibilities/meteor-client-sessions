@@ -87,12 +87,12 @@ Meteor.publish('clientSessions', function(client) {
 });
 
 Meteor.methods({
-  refreshClientSession: function(sessionId) {
-    SessionHelpers.createLatestKeyForSession(sessionId);
+  refreshClientSession: function() {
+    SessionHelpers.createLatestKeyForSession(this.sessionId);
   },
-  rememberClientSession: function(sessionId) {
+  rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var key = SessionHelpers.createKeyForSession(sessionId);
+    var key = SessionHelpers.createKeyForSession(this.sessionId);
     var rememberValues = {
       latestKey: key,
       rememberSalt: rememberSalt,
@@ -100,9 +100,9 @@ Meteor.methods({
       rememberForNDays: 15,
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
-    ClientSessions.update(sessionId, { $set: rememberValues });
+    ClientSessions.update(this.sessionId, { $set: rememberValues });
   },
-  forgetClientSession: function(sessionId) {
-    SessionHelpers.clearSession(sessionId);
+  forgetClientSession: function() {
+    SessionHelpers.clearSession(this.sessionId);
   }
 });

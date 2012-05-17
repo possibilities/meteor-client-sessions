@@ -1,6 +1,6 @@
 Meteor.methods({
-  setUserName: function(userName, sessionId) {
-    var session = ClientSessions.findOne(sessionId);
+  setUserName: function(userName) {
+    var session = ClientSessions.findOne(this.sessionId);
     if (session) {
       session.set('userName', userName);
     }

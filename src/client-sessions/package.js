@@ -19,6 +19,12 @@ Package.on_use(function(api) {
   api.add_files('common.js', ['client', 'server']);
   // Models
   api.add_files('models/client_session.js', ['client', 'server']);
+  // Filters
+  api.add_files('filters/client.js', 'client');
+  api.add_files('filters/server.js', 'server');
   // Libraries
   api.add_files('utils/server.js', 'server');
+  // Startup
+  api.add_files('startup/server.js', 'server');
+  api.add_files('startup/client.js', 'client');
 });

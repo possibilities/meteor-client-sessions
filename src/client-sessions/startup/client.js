@@ -1,0 +1,3 @@
+Filter.methods([
+  ClientSessionFilters.injectSession
+]);
