@@ -3,7 +3,8 @@ ClientSessions = new Meteor.Collection('clientSessions');
 ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 
 // Lock that shit down
-Secure.noDataMagic('clientSessions', 'clientSessionKeys');
+Secure.noDataMagic('clientSessions');
+Secure.noDataMagic('clientSessionKeys');
 
 SessionHelpers = {
   createOrRestoreSession: function(client) {
@@ -56,7 +57,7 @@ SessionHelpers = {
       $unset: {
         rememberCookie: true,
         rememberForNDays: true,
-        rememeberedAt: true,
+        rememberedAt: true,
       },
       $set: {
         latestKey: key,

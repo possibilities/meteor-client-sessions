@@ -8,8 +8,12 @@ ClientSessionFilters = {
       var clientSessionId = session._id;
       if (clientSessionId) {
         argumentsArray.unshift(clientSessionId);
+        return argumentsArray;
       }
     }
+      
+    // If all else fails prepend null
+    argumentsArray.unshift(null);
     return argumentsArray;
   }
 };
