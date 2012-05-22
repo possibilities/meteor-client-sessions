@@ -1,6 +1,6 @@
 # Client Sessions for Meteor
 
-A Meteor lib for tracking clients across requests
+A smart package for tracking clients across requests
 
 [Check out the demo!](http://client-sessions.meteor.com/)
 

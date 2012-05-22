@@ -1,5 +1,5 @@
 Package.describe({
-  summary: "A lib for persisting Meteor's session info across requests (and browser sessions)"
+  summary: "A smart package for tracking clients across requests"
 });
 
 Package.on_use(function(api) {
