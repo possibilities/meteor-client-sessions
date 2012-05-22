@@ -4,7 +4,7 @@ _.mixin(_.string.exports());
 
 // Template methods
 
-Template.demo.sessionId = function() {
+Template.demo.clientId = function() {
   var session = ClientSessions.findOne();
   if (session) {
     return session.latestKey;

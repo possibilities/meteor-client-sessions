@@ -8,27 +8,27 @@ Secure.noDataMagic('clientSessionKeys');
 
 SessionHelpers = {
   createOrRestoreSession: function(client) {
-    var sessionId;
+    var clientId;
     client = client || {};
     if (client.rememberCookie || client.sessionCookie) {
-      sessionId = this.restoreSession(client);
+      clientId = this.restoreSession(client);
     }
-    if (sessionId) {
-      this.createLatestKeyForSession(sessionId);
+    if (clientId) {
+      this.createLatestKeyForSession(clientId);
     } else {
-      sessionId = this.createSession();
+      clientId = this.createSession();
     }
-    return sessionId;
+    return clientId;
   },
 
   createSession: function() {
-    var sessionId = ClientSessions.insert({
+    var clientId = ClientSessions.insert({
       createdAt: new Date(),
       client: {}
     });
-    this.createLatestKeyForSession(sessionId);
+    this.createLatestKeyForSession(clientId);
 
-    return sessionId;
+    return clientId;
   },
 
   restoreSession: function(client) {
@@ -43,17 +43,17 @@ SessionHelpers = {
     if (sessionKeyId) {
       key = ClientSessionKeys.findOne(sessionKeyId)
       if (key) {
-        if (ClientSessions.find(key.sessionId).count() > 0) {
-          return key.sessionId;
+        if (ClientSessions.find(key.clientId).count() > 0) {
+          return key.clientId;
         }
       }
     }
     
   }, 
   
-  clearSession: function(sessionId) {
-    var key = this.createKeyForSession(sessionId);
-    ClientSessions.update(sessionId, {
+  clearSession: function(clientId) {
+    var key = this.createKeyForSession(clientId);
+    ClientSessions.update(clientId, {
       $unset: {
         rememberCookie: true,
         rememberForNDays: true,
@@ -67,33 +67,33 @@ SessionHelpers = {
     });
   },
 
-  createKeyForSession: function(sessionId) {
+  createKeyForSession: function(clientId) {
     return ClientSessionKeys.insert({
       createdAt: new Date(),
-      sessionId: sessionId
+      clientId: clientId
     });
   },
 
-  createLatestKeyForSession: function(sessionId) {
-    var key = this.createKeyForSession(sessionId);
-    ClientSessions.update(sessionId, {
+  createLatestKeyForSession: function(clientId) {
+    var key = this.createKeyForSession(clientId);
+    ClientSessions.update(clientId, {
       $set: { latestKey: key }
     });
   }
 };
 
 Meteor.publish('clientSessions', function(client) {
-  var sessionId = SessionHelpers.createOrRestoreSession(client);
-  return ClientSessions.find({ _id: sessionId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
+  var clientId = SessionHelpers.createOrRestoreSession(client);
+  return ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
 });
 
 Meteor.methods({
   refreshClientSession: function() {
-    SessionHelpers.createLatestKeyForSession(this.sessionId);
+    SessionHelpers.createLatestKeyForSession(this.clientId);
   },
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var key = SessionHelpers.createKeyForSession(this.sessionId);
+    var key = SessionHelpers.createKeyForSession(this.clientId);
     var rememberValues = {
       latestKey: key,
       rememberSalt: rememberSalt,
@@ -101,9 +101,9 @@ Meteor.methods({
       rememberForNDays: 15,
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
-    ClientSessions.update(this.sessionId, { $set: rememberValues });
+    ClientSessions.update(this.clientId, { $set: rememberValues });
   },
   forgetClientSession: function() {
-    SessionHelpers.clearSession(this.sessionId);
+    SessionHelpers.clearSession(this.clientId);
   }
 });

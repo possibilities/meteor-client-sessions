@@ -2,7 +2,7 @@ ClientSessionFilters = {
   loadSession: function() {
     var arrayArguments = _.toArray(arguments);
     
-    this.sessionId = arrayArguments.shift();
+    this.clientId = arrayArguments.shift();
     return arrayArguments;
   }
 };
