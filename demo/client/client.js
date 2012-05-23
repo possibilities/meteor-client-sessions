@@ -32,7 +32,7 @@ Template.demo.successMessage = function() {
 
 // Tools & tricks
 
-ClientSessionHelpers = {
+ClientSession = {
   setUserName: function() {
     var $nameElement = $('#setUserNameInput');
     var name = $nameElement.attr('value');
@@ -47,7 +47,7 @@ ClientSessionHelpers = {
   },
   submitOnEnterKey: function(e) {
     if (e.keyCode === 13) {
-      ClientSessionHelpers.setUserName();
+      ClientSession.setUserName();
     }
   },
   successFadeOutAfter: function(afterSeconds) {
@@ -85,8 +85,8 @@ Template.demo.events = {
     Cookie.remove(clientSessionConfig.sessionKey);
     Cookie.remove(clientSessionConfig.rememberKey);
   },
-  'click #setUserNameButton': ClientSessionHelpers.setUserName,
-  'keydown #setUserNameInput': ClientSessionHelpers.submitOnEnterKey,
+  'click #setUserNameButton': ClientSession.setUserName,
+  'keydown #setUserNameInput': ClientSession.submitOnEnterKey,
 };
 
 // Subscriptions
@@ -94,7 +94,7 @@ Template.demo.events = {
 Meteor.autosubscribe(function() {
   // Deal with fading out success message some time after it's displayed
   if (Session.get('successMessage')) {
-    ClientSessionHelpers.successFadeOutAfter(7000);
+    ClientSession.successFadeOutAfter(7000);
     $('#setUserNameInput').focus();
   } 
 });
