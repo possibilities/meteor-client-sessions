@@ -94,9 +94,22 @@ Template.demo.events = {
 Meteor.autosubscribe(function() {
   // Deal with fading out success message some time after it's displayed
   if (Session.get('successMessage')) {
-    $('#setUserNameInput').focus();
     ClientSessionHelpers.successFadeOutAfter(7000);
+    $('#setUserNameInput').focus();
   } 
+});
+
+var previousClientId;
+Meteor.autosubscribe(function() {
+  var session = ClientSessions.findOne();
+  // Detect change to session id
+  if (session && previousClientId !== session._id) {
+    // Focus on the username field
+    Meteor.defer(function() {
+      $('#setUserNameInput').focus();
+    });
+    previousClientId = session._id;
+  }
 });
 
 // Get github fork me graphic loaded. Found that client subscriptions sometimes
@@ -105,8 +118,4 @@ Meteor.defer(function() {
   $forkMe = $('img.forkMe');
   var src = $forkMe.data('src');
   $forkMe.attr('src', src);
-});
-
-Meteor.startup(function() {
-  $('#setUserNameInput').focus();
 });
