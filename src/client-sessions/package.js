@@ -7,7 +7,8 @@ Package.on_use(function(api) {
   api.use('underscore', 'server');
   api.use('session', 'client');
   api.use('simple-secure', 'server');
-  api.use('model-extensions', 'server');
+  api.use('model-base', 'server');
+  api.use('mongo-hooks', 'server');
   api.use('filters', 'server');
   api.use('mongo-livedata', 'server');
 
