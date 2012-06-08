@@ -44,7 +44,7 @@ var userForm = new InlineForm({
 
 new Demo({
   hosts: {
-    production: ['client-session.meteor.com']
+    production: ['client-sessions.meteor.com']
   },
   github: {
     user: 'possibilities',

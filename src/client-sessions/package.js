@@ -10,7 +10,6 @@ Package.on_use(function(api) {
   api.use('simple-secure', 'server');
   api.use('model-base', 'server');
   api.use('mongo-hooks', 'server');
-  api.use('validation', 'server');
   api.use('filters', 'server');
   api.use('backbone', ['server', 'client']);
   api.use('mongo-livedata', 'server');
