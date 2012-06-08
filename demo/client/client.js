@@ -1,3 +1,5 @@
+(function() {
+
 // Plumbing
 
 _.mixin(_.string.exports());
@@ -30,24 +32,23 @@ Template.demo.successMessage = function() {
   return Session.get('successMessage');
 };
 
+Template.demo.userForm = function() {
+  return userForm.render();
+};
+
 // Tools & tricks
 
-ClientSession = {
-  setUserName: function() {
-    var $nameElement = $('#setUserNameInput');
+ClientSessionHelpers = {
+  updateUserName: function() {
+    var $nameElement = $('#userName');
     var name = $nameElement.attr('value');
     if (!_.isBlank(name)) {
       var clientSession = ClientSessions.findOne();
       if (clientSession) {
-        Meteor.call('setUserName', name);
+        Meteor.call('updateUserName', name);
         $nameElement.attr('value', '');
         Session.set('successMessage', 'Nice, you added your name to your session!');
       }
-    }
-  },
-  submitOnEnterKey: function(e) {
-    if (e.keyCode === 13) {
-      ClientSession.setUserName();
     }
   },
   successFadeOutAfter: function(afterSeconds) {
@@ -84,18 +85,20 @@ Template.demo.events = {
   'click #deleteCookies': function() {
     Cookie.remove(clientSessionConfig.sessionKey);
     Cookie.remove(clientSessionConfig.rememberKey);
-  },
-  'click #setUserNameButton': ClientSession.setUserName,
-  'keydown #setUserNameInput': ClientSession.submitOnEnterKey,
+  }
 };
+
+ClientSession.on('ready', function() {
+  userForm.create().show();
+});
 
 // Subscriptions
 
 Meteor.autosubscribe(function() {
   // Deal with fading out success message some time after it's displayed
   if (Session.get('successMessage')) {
-    ClientSession.successFadeOutAfter(7000);
-    $('#setUserNameInput').focus();
+    ClientSessionHelpers.successFadeOutAfter(7000);
+    $('#userName').focus();
   } 
 });
 
@@ -106,16 +109,10 @@ Meteor.autosubscribe(function() {
   if (session && previousClientId !== session._id) {
     // Focus on the username field
     Meteor.defer(function() {
-      $('#setUserNameInput').focus();
+      $('#userName').focus();
     });
     previousClientId = session._id;
   }
 });
 
-// Get github fork me graphic loaded. Found that client subscriptions sometimes
-// don't start if the image is in the DOM from the start.
-Meteor.defer(function() {
-  $forkMe = $('img.forkMe');
-  var src = $forkMe.data('src');
-  $forkMe.attr('src', src);
-});
+})();

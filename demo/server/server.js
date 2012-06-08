@@ -1,13 +1,9 @@
+Users = new Meteor.Collection('users');
+Secure.noDataMagic();
+
 Meteor.methods({
-  setUserName: function(userName) {
+  saveUser: function(user) {
     var session = ClientSessions.findOne(this.clientId);
-    if (session) {
-      session.set('userName', userName);
-    }
+    session.set('userName', user.name);
   }
 });
-
-// Delete everything when the demo starts
-
-ClientSessions.remove({});
-ClientSessionKeys.remove({});

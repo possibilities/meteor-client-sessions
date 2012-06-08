@@ -4,13 +4,12 @@
 
 <body>
   {{> demo}}
-  {{> forkMe}}
 </body>
 
 <template name="demo">
   <h1>Client Sessions Demo</h1>
 
-  <p><em>A Meteor lib for tracking clients across requests</em></p>
+  <p><em>A smart package for tracking clients across requests</em></p>
 
   <div>
     {{#if successMessage}}
@@ -18,8 +17,8 @@
     {{/if}}
     
     {{#if clientId}}
-      <div class="well">
-        <h3>Your session ID!</h3>
+      <div class="well sessionWell">
+        <h3>Your client ID!</h3>
 
         <div id="sessionInfoWrapper">
           <p>{{clientId}}</p>
@@ -38,19 +37,14 @@
         </div>
       </div>
 
-      <div class="well">
-        <h3>Add your name to your session!</h3>
-        
+      <div class="well userNameWell">
         {{#if userName}}
-          <p><em>Your name is</em> <strong>{{userName}}</strong></p>
+          <p class="label label-info userNameLabel pull-right">{{userName}}</p>
         {{/if}}
 
-        <h4>Who are you?</h4>
+        <h3>Add your name to your session!</h3>
 
-        <div id="setValueWrapper">
-          <input id="setUserNameInput" class="pull-left" type="text" placeholder="Your name!" />
-          <input id="setUserNameButton" class="btn btn-primary" type="submit" value="Do it!" />
-        </div>
+        {{{userForm}}}
       </div>
     {{else}}
       <div class="well">
@@ -60,6 +54,6 @@
   </div>
 </template>
 
-<template name="forkMe">
-  <a href="https://github.com/possibilities/meteor-client-sessions"><img class="forkMe" style="position: absolute; top: 0; right: 0; border: 0;" data-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+<template name="userFormHeader">
+  <h4>Who are you?</h4>
 </template>

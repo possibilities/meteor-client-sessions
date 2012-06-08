@@ -15,6 +15,8 @@ var clientSessionConfig = new ClientSessionConfig();
 Meteor.subscribe("clientSessions", {
   sessionCookie: Cookie.get(clientSessionConfig.sessionKey),
   rememberCookie: Cookie.get(clientSessionConfig.rememberKey)
+}, function onClientSessionComplete() {
+  ClientSession.trigger('ready');
 });
 
 Meteor.autosubscribe(function() {

@@ -4,5 +4,5 @@ ClientSessionFilters = {
     
     this.clientId = arrayArguments.shift();
     return arrayArguments;
-  }
+  }  
 };

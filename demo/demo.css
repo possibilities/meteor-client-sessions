@@ -1,40 +1,11 @@
-body {
-  padding: 20px;
-  width: 700px;
+.userNameWell {
+  width: 500px;
 }
 
-h1, h4 {
-  padding-bottom: 10px;
+.userNameLabel {
+  width: 75px;
 }
 
-h3 {
-  padding-bottom: 5px;
-}
-
-input {
-  margin-right: 10px;
-}
-
-.clearfix {
-  clear: both;
-}
-
-#setValueWrapper {
-  margin-bottom: 10px;
-}
-
-#setValueInput {
-  margin-top: 9px;
-}
-
-#sessionInfoWrapper {
-  margin-top: 10px;
-}
-
-#sessionButtonsWrapper {
-  margin-top: 10px;
-}
-
-#setValueKeyInput, #setValueValInput {
-  width: 100px;
+.sessionWell input {
+  margin-right: 7px;
 }
