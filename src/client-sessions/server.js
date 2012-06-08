@@ -14,7 +14,7 @@ SessionHelpers = {
       clientId = this.restoreSession(client);
     }
     if (clientId) {
-      this.createLatestKeyForSession(clientId);
+      this.updateKeyForSession(clientId);
     } else {
       clientId = this.createSession();
     }
@@ -26,7 +26,7 @@ SessionHelpers = {
       createdAt: new Date(),
       client: {}
     });
-    this.createLatestKeyForSession(clientId);
+    this.updateKeyForSession(clientId);
 
     return clientId;
   },
@@ -74,7 +74,7 @@ SessionHelpers = {
     });
   },
 
-  createLatestKeyForSession: function(clientId) {
+  updateKeyForSession: function(clientId) {
     var key = this.createKeyForSession(clientId);
     ClientSessions.update(clientId, {
       $set: { latestKey: key }
@@ -89,7 +89,7 @@ Meteor.publish('clientSessions', function(client) {
 
 Meteor.methods({
   refreshClientSession: function() {
-    SessionHelpers.createLatestKeyForSession(this.clientId);
+    SessionHelpers.updateKeyForSession(this.clientId);
   },
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
