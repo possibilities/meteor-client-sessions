@@ -7,50 +7,52 @@
 </body>
 
 <template name="demo">
-  <h1>Client Sessions Demo</h1>
+  <div class="container">
+    <h1>Client Sessions Demo</h1>
 
-  <p><em>A smart package for tracking clients across requests</em></p>
+    <p><em>A smart package for tracking clients across requests</em></p>
 
-  <div>
-    {{#if successMessage}}
-      <div id="successMessage" class="alert alert-success">{{successMessage}}</div>
-    {{/if}}
+    <div>
+      {{#if successMessage}}
+        <div id="successMessage" class="alert alert-success">{{successMessage}}</div>
+      {{/if}}
     
-    {{#if clientId}}
-      <div class="well sessionWell">
-        <h3>Your client ID!</h3>
+      {{#if clientId}}
+        <div class="well sessionWell">
+          <h3>Your client ID!</h3>
 
-        <div id="sessionInfoWrapper">
-          <p>{{clientId}}</p>
+          <div id="sessionInfoWrapper">
+            <p>{{clientId}}</p>
+          </div>
+
+          <h4>When does it expire?</h4>
+          <p>Your session expires <em>{{#if rememberUntil}}{{rememberUntil}}{{else}}when you close this browser window{{/if}}</em>.</p>
+
+          <h4>Mess with it!</h4>
+
+          <div id="sessionButtonsWrapper">
+            <p><input id="refreshClientSession" class="pull-left btn btn-primary" type="submit" value="Refresh session ID!" /></p>
+            <p><input id="rememberClientSession" class="pull-left btn btn-primary" type="submit" value="Remember me!" /></p>
+            <p><input id="forgetClientSession" class="pull-left btn btn-primary" type="submit" value="Forget me!" /></p>
+            <p><input id="deleteCookies" class="btn btn-primary" type="submit" value="Delete my cookies!" /></p>
+          </div>
         </div>
 
-        <h4>When does it expire?</h4>
-        <p>Your session expires <em>{{#if rememberUntil}}{{rememberUntil}}{{else}}when you close this browser window{{/if}}</em>.</p>
+        <div class="well userNameWell">
+          {{#if userName}}
+            <div class="pull-right"><em>Your name is</em> <span class="label label-success">{{userName}}</span></div>
+          {{/if}}
 
-        <h4>Mess with it!</h4>
+          <h3>Add your name to your session!</h3>
 
-        <div id="sessionButtonsWrapper">
-          <p><input id="refreshClientSession" class="pull-left btn btn-primary" type="submit" value="Refresh session ID!" /></p>
-          <p><input id="rememberClientSession" class="pull-left btn btn-primary" type="submit" value="Remember me!" /></p>
-          <p><input id="forgetClientSession" class="pull-left btn btn-primary" type="submit" value="Forget me!" /></p>
-          <p><input id="deleteCookies" class="btn btn-primary" type="submit" value="Delete my cookies!" /></p>
+          {{{userForm}}}
         </div>
-      </div>
-
-      <div class="well userNameWell">
-        {{#if userName}}
-          <div class="pull-right"><em>Your name is</em> <span class="label label-success">{{userName}}</span></div>
-        {{/if}}
-
-        <h3>Add your name to your session!</h3>
-
-        {{{userForm}}}
-      </div>
-    {{else}}
-      <div class="well">
-        <em>No session... you shouldn't see this for very long.</em>
-      </div>
-    {{/if}}
+      {{else}}
+        <div class="well">
+          <em>No session... you shouldn't see this for very long.</em>
+        </div>
+      {{/if}}
+    </div>
   </div>
 </template>
 
