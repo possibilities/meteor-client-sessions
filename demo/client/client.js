@@ -85,6 +85,7 @@ Template.demo.events = {
   'click #deleteCookies': function() {
     Cookie.remove(clientSessionConfig.sessionKey);
     Cookie.remove(clientSessionConfig.rememberKey);
+    Session.set('successMessage', "Yum, I ate your cookies?");
   }
 };
 
