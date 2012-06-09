@@ -1,5 +1,15 @@
 // Define and secure collections
+
+// { clientId, key
+//		createdAt: Date
+//		client: {}
+//		rememberCookie: boolean/string
+//		rememberSalt
+//		expires: boolean/Date }
 ClientSessions = new Meteor.Collection('clientSessions');
+
+
+// { clientId, createdAt: Date, deletedAt: Date }
 ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 
 // Lock that shit down
@@ -41,7 +51,7 @@ SessionHelpers = {
     }
 
     if (sessionKeyId) {
-      key = ClientSessionKeys.findOne(sessionKeyId)
+      key = ClientSessionKeys.findOne(sessionKeyId);
       if (key) {
         if (ClientSessions.find(key.clientId).count() > 0) {
           return key.clientId;
@@ -84,21 +94,19 @@ SessionHelpers = {
 Meteor.publish('clientSessions', function(client) {
   var self = this;
   var clientId = SessionHelpers.createOrRestoreSession(client);
-  var clientSesssionQuery = ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
+  var clientSessionQuery = ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
   var uuid = Meteor.uuid();
 
   var prepareClientSession = function(raw) {
-    var clientSession = {
+    return {
       client: raw.client,
       key: raw.key,
       rememberCookie: raw.rememberCookie,
       expires: raw.expires
     };
-
-    return clientSession;
   };
 
-  var handle = clientSesssionQuery.observe({
+  var handle = clientSessionQuery.observe({
 
     added: function (clientSession) {
 
