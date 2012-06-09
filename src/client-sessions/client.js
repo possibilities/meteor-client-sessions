@@ -24,8 +24,8 @@ Meteor.autosubscribe(function() {
   if (clientSession) {
 
     // Save a session cookie
-    if (clientSession.latestKey) {
-      Cookie.set(clientSessionConfig.sessionKey, clientSession.latestKey);
+    if (clientSession.key) {
+      Cookie.set(clientSessionConfig.sessionKey, clientSession.key);
     } else {
       Cookie.remove(clientSessionConfig.sessionKey);
     }

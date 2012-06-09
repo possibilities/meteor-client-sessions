@@ -9,7 +9,7 @@ _.mixin(_.string.exports());
 Template.demo.clientId = function() {
   var session = ClientSessions.findOne();
   if (session) {
-    return session.latestKey;
+    return session.key;
   }
 };
 

@@ -3,7 +3,6 @@ Secure.noDataMagic();
 
 Meteor.methods({
   saveUser: function(user) {
-    var session = ClientSessions.findOne(this.clientId);
-    session.set('userName', user.name);
+    this.clientSession.set('userName', user.name);
   }
 });
