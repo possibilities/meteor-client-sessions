@@ -1,15 +1,5 @@
-// Define and secure collections
-
-// { clientId, key
-//		createdAt: Date
-//		client: {}
-//		rememberCookie: boolean/string
-//		rememberSalt
-//		expires: boolean/Date }
+// Setup collections
 ClientSessions = new Meteor.Collection('clientSessions');
-
-
-// { clientId, createdAt: Date, deletedAt: Date }
 ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 
 // Lock that shit down
