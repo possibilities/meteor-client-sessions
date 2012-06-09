@@ -73,10 +73,6 @@ SessionHelpers = {
     });
   },
 
-  invalidateKey: function(keyId) {
-    
-  },
-
   updateKeyForSession: function(clientId) {
     var key = this.createKeyForSession(clientId);
     ClientSessions.update(clientId, {
@@ -139,9 +135,13 @@ Meteor.publish('clientSessions', function(client) {
 });
 
 Meteor.methods({
+  
+  // Get a new key for an established session
   refreshClientSession: function() {
     SessionHelpers.updateKeyForSession(this.clientSession._id);
   },
+  
+  // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
     var key = SessionHelpers.createKeyForSession(this.clientSession._id);
@@ -153,9 +153,14 @@ Meteor.methods({
     };
     ClientSessions.update(this.clientSession._id, { $set: rememberValues });
   },
+
+  // Forget all about the current session
   forgetClientSession: function() {
     SessionHelpers.clearSession(this.clientSession._id);
   },
+  
+  // The client will call back after it receives a new key
+  // so we know it's safe to delete it
   invalidateKey: function(key) {
     ClientSessionKeys.update({ key: key }, {
       $set: {

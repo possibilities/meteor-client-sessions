@@ -5,6 +5,8 @@ ClientSession = function(session) {
   this.listeners = {};
 };
 
+// Setter and getter for client variables
+
 ClientSession.prototype.set = function(key, value) {
   this.client[key] = value;
   ClientSessions.update(this._id, { $set: { client: this.client } });
@@ -13,6 +15,8 @@ ClientSession.prototype.set = function(key, value) {
 ClientSession.prototype.get = function(key) {
   return this.client[key];
 };
+
+// Handle events
 
 ClientSession.prototype.on = function(event, callback) {
   this.listeners[event] || (this.listeners[event] = []);
