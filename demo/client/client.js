@@ -88,31 +88,27 @@ Template.demo.events = {
   }
 };
 
+// Helper for focusing on the form field
+var focusOnUserName = function() {
+  Meteor.defer(function() {
+    $('#user_name').focus();
+  });
+};
+
+// Keep form focused
 ClientSession.on('ready', function() {
   userForm.show().render();
+  focusOnUserName();
+}).on('change', function() {
+  focusOnUserName();
 });
 
-// Subscriptions
-
+// Deal with fading out success message
 Meteor.autosubscribe(function() {
-  // Deal with fading out success message some time after it's displayed
   if (Session.get('successMessage')) {
     ClientSessionHelpers.successFadeOutAfter(7000);
     $('#userName').focus();
   } 
-});
-
-var previousClientId;
-Meteor.autosubscribe(function() {
-  var session = ClientSessions.findOne();
-  // Detect change to session id
-  if (session && previousClientId !== session.key) {
-    // Focus on the username field
-    Meteor.defer(function() {
-      $('#userName').focus();
-    });
-    previousClientId = session.key;
-  }
 });
 
 })();

@@ -23,6 +23,7 @@ Meteor.autosubscribe(function() {
   var clientSession = ClientSessions.findOne();
 
   if (clientSession) {
+    ClientSession.trigger('change');
 
     // Save a session cookie
     if (clientSession.key) {

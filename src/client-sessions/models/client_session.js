@@ -17,6 +17,8 @@ ClientSession.prototype.get = function(key) {
 ClientSession.prototype.on = function(event, callback) {
   this.listeners[event] || (this.listeners[event] = []);
   this.listeners[event].push(callback);
+  
+  return this;
 };
 
 ClientSession.prototype.trigger = function(event) {
