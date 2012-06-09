@@ -81,10 +81,9 @@ SessionHelpers = {
   }
 };
 
-Meteor.publish('clientSessions', function(client) {
+Meteor.publish('clientSessions', function(cookies) {
   var self = this;
-  var clientId = SessionHelpers.createOrRestoreSession(client);
-  var clientSessionQuery = ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
+  var clientId = SessionHelpers.createOrRestoreSession(cookies);
   var uuid = Meteor.uuid();
 
   var prepareClientSession = function(clientSession) {
@@ -96,7 +95,11 @@ Meteor.publish('clientSessions', function(client) {
     };
   };
 
-  var handle = clientSessionQuery.observe({
+  // Setup for finding the client's session
+  var query = { _id: clientId, deletedAt: null };
+  var params = { limit: 1, fields: { rememberSalt: false } };
+
+  var handle = ClientSessions.find(query, params).observe({
 
     added: function (clientSession) {
 
