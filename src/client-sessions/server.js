@@ -155,5 +155,12 @@ Meteor.methods({
   },
   forgetClientSession: function() {
     SessionHelpers.clearSession(this.clientSession._id);
+  },
+  invalidateKey: function(key) {
+    ClientSessionKeys.update({ key: key }, {
+      $set: {
+        deletedAt: new Date()
+      }
+    });
   }
 });

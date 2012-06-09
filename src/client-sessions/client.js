@@ -19,12 +19,23 @@ Meteor.autosubscribe(function() {
   if (clientSession) {
 
     // Emit change event when the session changes
-    if (ClientSession._firstLoadComplete)
+    if (ClientSession._previousKey)
       ClientSession.trigger('change');
 
-    // Save session cookie
-    if (clientSession.key)
+    if (clientSession.key) {
+      if (ClientSession._previousKey !== clientSession.key) {
+        
+        // If it's a legit key change invalidate the old key
+        if (ClientSession._previousKey)
+          Meteor.call('invalidateKey', ClientSession._previousKey);
+        
+        // Keep track of previous session key so we can detect changes
+        ClientSession._previousKey = clientSession.key;
+      }
+      
+      // Save session cookie
       Cookie.set(ClientSession.config().sessionKey, clientSession.key);
+    }
 
     // Trash remember cookie
     else
@@ -39,8 +50,5 @@ Meteor.autosubscribe(function() {
     // Trash session cookie
     else
       Cookie.remove(ClientSession.config().rememberKey);
-
-    // Keep track of first session load
-    ClientSession._firstLoadComplete = true;
   }
 });
