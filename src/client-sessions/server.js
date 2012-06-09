@@ -97,12 +97,12 @@ Meteor.publish('clientSessions', function(client) {
   var clientSessionQuery = ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
   var uuid = Meteor.uuid();
 
-  var prepareClientSession = function(raw) {
+  var prepareClientSession = function(clientSession) {
     return {
-      client: raw.client,
-      key: raw.key,
-      rememberCookie: raw.rememberCookie,
-      expires: raw.expires
+      client:          clientSession.client,
+      key:             clientSession.key,
+      rememberCookie:  clientSession.rememberCookie,
+      expires:         clientSession.expires
     };
   };
 
