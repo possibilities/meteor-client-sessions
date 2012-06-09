@@ -6,13 +6,11 @@ Package.on_use(function(api) {
 
   // Deps
   api.use('underscore', 'server');
-  api.use('session', 'client');
   api.use('simple-secure', 'server');
   api.use('model-base', 'server');
   api.use('mongo-hooks', 'server');
   api.use('filters', 'server');
   api.use('backbone', ['server', 'client']);
-  api.use('mongo-livedata', 'server');
 
   // Vendor
   api.add_files('vendor/cookies.js', 'client');
@@ -28,7 +26,6 @@ Package.on_use(function(api) {
   // Filters
   api.add_files('filters/client.js', 'client');
   api.add_files('filters/server.js', 'server');
-  api.add_files('filters/common.js', ['client', 'server']);
 
   // Libraries
   api.add_files('utils/server.js', 'server');
