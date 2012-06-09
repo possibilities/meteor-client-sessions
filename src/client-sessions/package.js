@@ -18,7 +18,6 @@ Package.on_use(function(api) {
   // Core
   api.add_files('client.js', 'client');
   api.add_files('server.js', 'server');
-  api.add_files('common.js', ['client', 'server']);
 
   // Filters
   api.add_files('filters/client.js', 'client');
@@ -26,6 +25,7 @@ Package.on_use(function(api) {
 
   // Libraries
   api.add_files('utils/server.js', 'server');
+  api.add_files('utils/common.js', ['client', 'server']);
 
   // Startup
   api.add_files('startup/server.js', 'server');
