@@ -100,6 +100,16 @@ ClientSession.on('ready', function() {
   focusOnUserName();
 }).on('change', function() {
   focusOnUserName();
+
+  // Fade out the form alert
+  // TODO this should be handled by the form library
+  if (this.timeoutId) Meteor.clearTimeout(this.timeoutId);
+  this.timeoutId = Meteor.setTimeout(function() {
+    $('.formWrapper .alert').fadeOut('fast', function() {
+      if (!this.timeoutId) Session.set('successMessage');
+    });
+  }, 5000);
+  
 });
 
 // Deal with fading out success message
