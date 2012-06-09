@@ -32,7 +32,7 @@ Template.demo.successMessage = function() {
 };
 
 Template.demo.userForm = function() {
-  return userForm.create().render();
+  return userForm.show().render();
 };
 
 // Tools & tricks
@@ -97,7 +97,6 @@ var focusOnUserName = function() {
 
 // Keep form focused
 ClientSession.on('ready', function() {
-  userForm.show().render();
   focusOnUserName();
 }).on('change', function() {
   focusOnUserName();
@@ -106,8 +105,7 @@ ClientSession.on('ready', function() {
 // Deal with fading out success message
 Meteor.autosubscribe(function() {
   if (Session.get('successMessage')) {
-    ClientSessionHelpers.successFadeOutAfter(7000);
-    $('#userName').focus();
+    ClientSessionHelpers.successFadeOutAfter(5000);
   } 
 });
 
