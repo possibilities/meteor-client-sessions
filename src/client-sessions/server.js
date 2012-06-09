@@ -7,52 +7,73 @@ Secure.noDataMagic('clientSessions');
 Secure.noDataMagic('clientSessionKeys');
 
 SessionHelpers = {
-  createOrRestoreSession: function(client) {
+
+  // Find or create a session
+  createOrRestoreSession: function(cookies) {
     var clientId;
-    client = client || {};
-    if (client.rememberCookie || client.sessionCookie) {
-      clientId = this.restoreSession(client);
-    }
-    if (clientId) {
+    cookies || (cookies = {});
+
+    // If we have cookies try to restore the session
+    if (cookies.rememberCookie || cookies.sessionCookie)
+      clientId = this.restoreSession(cookies);
+
+    // If we find a session update the key
+    if (clientId)
       this.updateKeyForSession(clientId);
-    } else {
+
+    // If no session make one
+    else
       clientId = this.createSession();
-    }
+
     return clientId;
   },
 
+  // Make a session
   createSession: function() {
+    
+    // Make a new session
     var clientId = ClientSessions.insert({
       createdAt: new Date(),
       client: {}
     });
+    
+    // Get a new key
     this.updateKeyForSession(clientId);
 
     return clientId;
   },
 
-  restoreSession: function(client) {
-    var key, sessionKeyId;
+  // Find a session via cookies
+  restoreSession: function(cookies) {
+    var sessionKey, sessionKeyId;
 
-    if (client.sessionCookie) {
-      sessionKeyId = client.sessionCookie;
-    } else {
-      sessionKeyId = Utils.decodeRememberToken(client.rememberCookie);
-    }
+    // If we have cookies figure out the session Id
+    if (cookies.sessionCookie)
+      sessionKeyId = cookies.sessionCookie;
 
+    // If we're working with a remember me cookie decode it
+    else
+      sessionKeyId = Utils.decodeRememberToken(cookies.rememberCookie);
+
+    // We found a session key ID, use to get the actual session key
     if (sessionKeyId) {
-      key = ClientSessionKeys.findOne(sessionKeyId);
-      if (key) {
-        if (ClientSessions.find(key.clientId).count() > 0) {
-          return key.clientId;
+      sessionKey = ClientSessionKeys.findOne(sessionKeyId);
+      if (sessionKey) {
+        if (ClientSessions.find(sessionKey.clientId).count() > 0) {
+          return sessionKey.clientId;
         }
       }
     }
     
   }, 
   
+  // Trash it!
   clearSession: function(clientId) {
+    
+    // Make a new key for the session
     var key = this.createKeyForSession(clientId);
+    
+    // Clear or reset all the attributes
     ClientSessions.update(clientId, {
       $unset: {
         rememberCookie: true,
@@ -66,26 +87,38 @@ SessionHelpers = {
     });
   },
 
+  // Make a new key for the current session
   createKeyForSession: function(clientId) {
+    
+    // Get a new key for the current session
     return ClientSessionKeys.insert({
       createdAt: new Date(),
       clientId: clientId
     });
   },
 
+  // Make and attach a new key to the current session
   updateKeyForSession: function(clientId) {
+    
+    // Get a new key for the session
     var key = this.createKeyForSession(clientId);
+
+    // Now update the key attribute of the session
     ClientSessions.update(clientId, {
       $set: { key: key }
     });
+
   }
 };
 
 Meteor.publish('clientSessions', function(cookies) {
   var self = this;
-  var clientId = SessionHelpers.createOrRestoreSession(cookies);
   var uuid = Meteor.uuid();
 
+  // Find or make a client session
+  var clientId = SessionHelpers.createOrRestoreSession(cookies);
+
+  // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
     return {
       client:          clientSession.client,
@@ -99,6 +132,8 @@ Meteor.publish('clientSessions', function(cookies) {
   var query = { _id: clientId, deletedAt: null };
   var params = { limit: 1, fields: { rememberSalt: false } };
 
+  // Watch the user's client session and publish relavent
+  // bits to the client
   var handle = ClientSessions.find(query, params).observe({
 
     added: function (clientSession) {
@@ -130,6 +165,8 @@ Meteor.publish('clientSessions', function(cookies) {
    // remove data and turn off observe when client unsubs
    self.onStop(function () {
      handle.stop();
+     
+     // TODO this should clear everything!
      self.unset('clientSessions', uuid, []);
      self.flush();
    });
