@@ -2,8 +2,6 @@
 
 A smart package for tracking clients across requests
 
-[Check out the demo!](http://client-sessions.meteor.com/)
-
 ## Usage
 
 I'll add instructions eventually. Until then check out demo app in repo.
