@@ -11,5 +11,3 @@ ClientSession = Model.extend({
 });
 
 _.extend(ClientSession, Backbone.Events);
-
-Model.register('clientSessions', ClientSession);

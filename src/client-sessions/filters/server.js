@@ -21,7 +21,7 @@ ClientSessionFilters = {
         if (key.clientId === payload.clientId) {
           
           // Keep a reference for Meteor.methods
-          this.clientSession = clientSession;
+          this.clientSession = new ClientSession(clientSession);
         }
       }
     }

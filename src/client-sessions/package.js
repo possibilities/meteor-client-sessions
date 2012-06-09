@@ -8,7 +8,6 @@ Package.on_use(function(api) {
   api.use('underscore', 'server');
   api.use('simple-secure', 'server');
   api.use('model-base', 'server');
-  api.use('mongo-hooks', 'server');
   api.use('filters', 'server');
   api.use('backbone', ['server', 'client']);
 

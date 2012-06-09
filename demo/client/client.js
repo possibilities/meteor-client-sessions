@@ -16,7 +16,7 @@ Template.demo.clientId = function() {
 Template.demo.userName = function() {
   var session = ClientSessions.findOne();
   if (session) {
-    return session.get('userName');
+    return new ClientSession(session).get('userName');
   }
 };
 
