@@ -1,16 +1,15 @@
 // Define and secure collections
 
-// { clientId,
+// { clientId, key
 //		createdAt: Date
 //		client: {}
-//		key: points to ClientSessionKeys.sessionId
 //		rememberCookie: boolean/string
-//		rememberSalt: empty or Meteor.uuid
+//		rememberSalt
 //		expires: boolean/Date }
 ClientSessions = new Meteor.Collection('clientSessions');
 
 
-// { sessionId, clientId: points to ClientSessions.clientId, createdAt: Date, deletedAt: Date }
+// { clientId, createdAt: Date, deletedAt: Date }
 ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 
 // Lock that shit down
@@ -18,11 +17,11 @@ Secure.noDataMagic('clientSessions');
 Secure.noDataMagic('clientSessionKeys');
 
 SessionHelpers = {
-  createOrRestoreSession: function(clientCookies) {
+  createOrRestoreSession: function(client) {
     var clientId;
-    clientCookies = clientCookies || {};
-    if (clientCookies.rememberCookie || clientCookies.sessionCookie) {
-      clientId = this.restoreSession(clientCookies);
+    client = client || {};
+    if (client.rememberCookie || client.sessionCookie) {
+      clientId = this.restoreSession(client);
     }
     if (clientId) {
       this.updateKeyForSession(clientId);
@@ -32,8 +31,6 @@ SessionHelpers = {
     return clientId;
   },
 
-
-  // Creates a new ClientId
   createSession: function() {
     var clientId = ClientSessions.insert({
       createdAt: new Date(),
@@ -44,20 +41,20 @@ SessionHelpers = {
     return clientId;
   },
 
-  restoreSession: function(clientCookies) {
-    var record, sessionId;
+  restoreSession: function(client) {
+    var key, sessionKeyId;
 
-    if (clientCookies.sessionCookie) {
-      sessionId = clientCookies.sessionCookie;
+    if (client.sessionCookie) {
+      sessionKeyId = client.sessionCookie;
     } else {
-      sessionId = Utils.decodeRememberToken(clientCookies.rememberCookie);
+      sessionKeyId = Utils.decodeRememberToken(client.rememberCookie);
     }
 
-    if (sessionId) {
-      record = ClientSessionKeys.findOne(sessionId);
-      if (record) {
-        if (ClientSessions.find(record.clientId).count() > 0) {
-          return record.clientId;
+    if (sessionKeyId) {
+      key = ClientSessionKeys.findOne(sessionKeyId);
+      if (key) {
+        if (ClientSessions.find(key.clientId).count() > 0) {
+          return key.clientId;
         }
       }
     }
@@ -65,14 +62,14 @@ SessionHelpers = {
   }, 
   
   clearSession: function(clientId) {
-    var sessionId = this.createKeyForSession(clientId);
+    var key = this.createKeyForSession(clientId);
     ClientSessions.update(clientId, {
       $unset: {
         rememberCookie: true,
         expires: true
       },
       $set: {
-        key: sessionId,
+        key: key,
         createdAt: new Date(),
         client: {}
       }
@@ -87,16 +84,16 @@ SessionHelpers = {
   },
 
   updateKeyForSession: function(clientId) {
-    var sessionId = this.createKeyForSession(clientId);
+    var key = this.createKeyForSession(clientId);
     ClientSessions.update(clientId, {
-      $set: { key: sessionId }
+      $set: { key: key }
     });
   }
 };
 
-Meteor.publish('clientSessions', function(clientCookies) {
+Meteor.publish('clientSessions', function(client) {
   var self = this;
-  var clientId = SessionHelpers.createOrRestoreSession(clientCookies);
+  var clientId = SessionHelpers.createOrRestoreSession(client);
   var clientSessionQuery = ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
   var uuid = Meteor.uuid();
 
