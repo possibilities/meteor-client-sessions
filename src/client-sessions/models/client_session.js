@@ -38,7 +38,7 @@ _.extend(ClientSession, Backbone.Events);
 
 ClientSession._config = {
   sessionKey: '_meteor_session_id',
-  rememberKey: '_meteor_remember_id',
+  rememberKey: '_meteor_remember_id'
 };
 
 // Handle configuration

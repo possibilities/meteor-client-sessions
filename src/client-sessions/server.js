@@ -56,7 +56,7 @@ SessionHelpers = {
     ClientSessions.update(clientId, {
       $unset: {
         rememberCookie: true,
-        expires: true,
+        expires: true
       },
       $set: {
         key: key,
