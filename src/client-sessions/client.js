@@ -1,47 +1,46 @@
 ClientSessions = new Meteor.Collection('clientSessions');
 
-// TODO this is gross
-var ClientSessionConfig = function(options) {
-  var defaultSessionKey = '_meteor_session_id';
-  var defaultRememberKey = '_remember_me' + defaultSessionKey;
-  var defaultOptions = {
-    sessionKey: defaultSessionKey,
-    rememberKey: defaultRememberKey,
-  };
-  _.extend(this, defaultOptions, options);
-};
-var clientSessionConfig = new ClientSessionConfig();
-
+// Subscribe to clientSessions
 Meteor.subscribe('clientSessions', {
-  sessionCookie: Cookie.get(clientSessionConfig.sessionKey),
-  rememberCookie: Cookie.get(clientSessionConfig.rememberKey)
+
+  // Resume session using cookies if they're present.
+  sessionCookie: Cookie.get(ClientSession.config().sessionKey),
+  rememberCookie: Cookie.get(ClientSession.config().rememberKey)
+
+// When the subscriptions completes emit ready event
 }, function onClientSessionComplete() {
   ClientSession.trigger('ready');
 });
 
-ClientSession._firstLoad = true;
+// Use an autosubscription to keep track of changes to the clientSession
 Meteor.autosubscribe(function() {
   var clientSession = ClientSessions.findOne();
 
   if (clientSession) {
 
-    if (!ClientSession._firstLoad)
+    // Emit change event when the session changes
+    if (ClientSession._firstLoadComplete)
       ClientSession.trigger('change');
 
-    // Save a session cookie
+    // Save session cookie
     if (clientSession.key)
-      Cookie.set(clientSessionConfig.sessionKey, clientSession.key);
+      Cookie.set(ClientSession.config().sessionKey, clientSession.key);
+
+    // Trash remember cookie
     else
-      Cookie.remove(clientSessionConfig.sessionKey);
+      Cookie.remove(ClientSession.config().sessionKey);
     
-    // Save remember me cookie
+    // Save remember cookie
     if (clientSession.rememberCookie)
-      Cookie.set(clientSessionConfig.rememberKey, clientSession.rememberCookie, {
+      Cookie.set(ClientSession.config().rememberKey, clientSession.rememberCookie, {
         expires: clientSession.expires
       });
-    else
-      Cookie.remove(clientSessionConfig.rememberKey);
 
-    ClientSession._firstLoad = false;
+    // Trash session cookie
+    else
+      Cookie.remove(ClientSession.config().rememberKey);
+
+    // Keep track of first session load
+    ClientSession._firstLoadComplete = true;
   }
 });

@@ -141,7 +141,6 @@ Meteor.publish('clientSessions', function(client) {
 Meteor.methods({
   refreshClientSession: function() {
     SessionHelpers.updateKeyForSession(this.clientSession._id);
-    SessionHelpers.invalidateKey(this.clientSession.key);
   },
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();

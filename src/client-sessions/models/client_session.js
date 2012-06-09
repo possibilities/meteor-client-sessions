@@ -1,4 +1,4 @@
-// Client model extensions
+// Client session class
 
 ClientSession = function(session) {
   _.extend(this, session);
@@ -29,3 +29,19 @@ ClientSession.prototype.trigger = function(event) {
 };
 
 _.extend(ClientSession, Backbone.Events);
+
+// Default config
+
+ClientSession._config = {
+  sessionKey: '_meteor_session_id',
+  rememberKey: '_meteor_remember_id',
+};
+
+// Handle configuration
+
+ClientSession.config = function(config) {
+  if (config)
+    _.extend(this._config, config);
+  else
+    return this._config;
+};
