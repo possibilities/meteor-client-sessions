@@ -1,3 +1,4 @@
+// A local collection to hold onto the current clientSession
 ClientSessions = new Meteor.Collection('clientSessions');
 
 // Subscribe to clientSessions
@@ -14,15 +15,19 @@ Meteor.subscribe('clientSessions', {
 
 // Use an autosubscription to keep track of changes to the clientSession
 Meteor.autosubscribe(function() {
+  
+  // Lookup the current client session
   var clientSession = ClientSessions.findOne();
-
   if (clientSession) {
 
     // Emit change event when the session changes
     if (ClientSession._previousKey)
       ClientSession.trigger('change');
-
+      
+    // Make sure we have a session key
     if (clientSession.key) {
+      
+      // Detect clientSession key changes
       if (ClientSession._previousKey !== clientSession.key) {
         
         // If it's a legit key change invalidate the old key
