@@ -8,7 +8,6 @@ Package.on_use(function(api) {
   api.use('underscore', 'server');
   api.use('simple-secure', 'server');
   api.use('filters', 'server');
-  api.use('backbone', ['server', 'client']);
 
   // Vendor
   api.add_files('vendor/cookies.js', 'client');
