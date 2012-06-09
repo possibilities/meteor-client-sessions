@@ -15,7 +15,7 @@ User = Model.extend({
         ]
       }
     }
-  },
+  }
 });
 
 // Demo form

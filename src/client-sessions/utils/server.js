@@ -3,8 +3,7 @@ var crypto = __meteor_bootstrap__.require('crypto');
 Utils = {};
 
 Utils.encodeRememberToken = function(rememberSalt, rememberToken) {
-  var encodedToken = rememberToken + '--' + this.generateHmac(rememberSalt, rememberToken);
-  return encodedToken;
+  return rememberToken + '--' + this.generateHmac(rememberSalt, rememberToken);
 };
 
 Utils.decodeRememberToken = function(encodedRememberToken) {
