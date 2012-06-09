@@ -56,8 +56,7 @@ SessionHelpers = {
     ClientSessions.update(clientId, {
       $unset: {
         rememberCookie: true,
-        rememberForNDays: true,
-        rememberedAt: true,
+        expires: true,
       },
       $set: {
         key: key,
@@ -87,8 +86,56 @@ SessionHelpers = {
 };
 
 Meteor.publish('clientSessions', function(client) {
+  var self = this;
   var clientId = SessionHelpers.createOrRestoreSession(client);
-  return ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
+  var clientSesssionQuery = ClientSessions.find({ _id: clientId, deletedAt: null }, { limit: 1, fields: { rememberSalt: false } });
+  var uuid = Meteor.uuid();
+
+  var prepareClientSession = function(raw) {
+    var clientSession = {
+      client: raw.client,
+      key: raw.key,
+      rememberCookie: raw.rememberCookie,
+      expires: raw.expires
+    };
+
+    return clientSession;
+  };
+
+  var handle = clientSesssionQuery.observe({
+
+    added: function (clientSession) {
+
+      // Clean session up before publishing
+      clientSession = prepareClientSession(clientSession);
+
+      // Publish
+      self.set("clientSessions", uuid, clientSession);
+      self.complete();
+      self.flush();
+    },
+    
+    changed: function (clientSession, index, oldClientSession) {
+
+      // Figure out which keys have been deleted and unset them
+      var deleteKeys = _.difference(_.keys(oldClientSession), _.keys(clientSession));
+      self.unset('clientSessions', uuid, deleteKeys);
+
+      // Clean session up before publishing
+      clientSession = prepareClientSession(clientSession);
+
+      // Publish
+      self.set("clientSessions", uuid, clientSession);
+      self.flush();
+    }
+  });
+
+   // remove data and turn off observe when client unsubs
+   self.onStop(function () {
+     handle.stop();
+     self.unset('clientSessions', uuid, []);
+     self.flush();
+   });
 });
 
 Meteor.methods({
@@ -102,8 +149,7 @@ Meteor.methods({
     var rememberValues = {
       key: key,
       rememberSalt: rememberSalt,
-      rememberedAt: new Date(),
-      rememberForNDays: 15,
+      expires: new Date().addDays(15),
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
     ClientSessions.update(this.clientSession._id, { $set: rememberValues });

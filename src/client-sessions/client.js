@@ -12,7 +12,7 @@ var ClientSessionConfig = function(options) {
 
 var clientSessionConfig = new ClientSessionConfig();
 
-Meteor.subscribe("clientSessions", {
+Meteor.subscribe('clientSessions', {
   sessionCookie: Cookie.get(clientSessionConfig.sessionKey),
   rememberCookie: Cookie.get(clientSessionConfig.rememberKey)
 }, function onClientSessionComplete() {
@@ -21,6 +21,7 @@ Meteor.subscribe("clientSessions", {
 
 Meteor.autosubscribe(function() {
   var clientSession = ClientSessions.findOne();
+
   if (clientSession) {
 
     // Save a session cookie
@@ -31,10 +32,9 @@ Meteor.autosubscribe(function() {
     }
     
     // Save remember me cookie
-    var expires = new Date(clientSession.rememberedAt).addDays(clientSession.rememberForNDays);
     if (clientSession.rememberCookie) {
       Cookie.set(clientSessionConfig.rememberKey, clientSession.rememberCookie, {
-        expires: expires
+        expires: clientSession.expires
       });
     } else {
       Cookie.remove(clientSessionConfig.rememberKey);

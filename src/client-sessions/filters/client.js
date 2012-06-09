@@ -11,17 +11,14 @@ ClientSessionFilters = {
       // Prepend the session info to `Meteor.call/apply` 
       // arguments, they'll be verified by a server
       // side filter
-      argumentsArray.unshift({
-        clientId: clientSession._id,
-        key: clientSession.key
-      });
+      argumentsArray.unshift(clientSession.key);
       
       // Return the arguments untampered
       return argumentsArray;
     }
       
-    // If all else fails prepend an empty obj
-    argumentsArray.unshift({});
+    // If all else fails use null
+    argumentsArray.unshift(null);
     return argumentsArray;
   }
 };

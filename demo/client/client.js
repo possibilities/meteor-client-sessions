@@ -22,9 +22,8 @@ Template.demo.userName = function() {
 
 Template.demo.rememberUntil = function() {
   var session = ClientSessions.findOne();
-  if (session && session.rememberedAt) {
-    var until = new Date(session.rememberedAt).addDays(session.rememberForNDays);
-    return moment(until).fromNow();
+  if (session && session.expires) {
+    return moment(session.expires).fromNow();
   }
 };
 
@@ -33,7 +32,7 @@ Template.demo.successMessage = function() {
 };
 
 Template.demo.userForm = function() {
-  return userForm.render();
+  return userForm.create().render();
 };
 
 // Tools & tricks
@@ -90,7 +89,7 @@ Template.demo.events = {
 };
 
 ClientSession.on('ready', function() {
-  userForm.create().show();
+  userForm.show().render();
 });
 
 // Subscriptions
@@ -107,12 +106,12 @@ var previousClientId;
 Meteor.autosubscribe(function() {
   var session = ClientSessions.findOne();
   // Detect change to session id
-  if (session && previousClientId !== session._id) {
+  if (session && previousClientId !== session.key) {
     // Focus on the username field
     Meteor.defer(function() {
       $('#userName').focus();
     });
-    previousClientId = session._id;
+    previousClientId = session.key;
   }
 });
 
