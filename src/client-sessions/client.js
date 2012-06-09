@@ -5,8 +5,8 @@ ClientSessions = new Meteor.Collection('clientSessions');
 Meteor.subscribe('clientSessions', {
 
   // Resume session using cookies if they're present.
-  sessionCookie: Cookie.get(ClientSession.config().sessionKey),
-  rememberCookie: Cookie.get(ClientSession.config().rememberKey)
+  sessionCookie: Cookie.get(ClientSession.config().sessionCookieName),
+  rememberCookie: Cookie.get(ClientSession.config().rememberCookieName)
 
 // When the subscriptions completes emit ready event
 }, function onClientSessionComplete() {
@@ -39,21 +39,21 @@ Meteor.autosubscribe(function() {
       }
       
       // Save session cookie
-      Cookie.set(ClientSession.config().sessionKey, clientSession.key);
+      Cookie.set(ClientSession.config().sessionCookieName, clientSession.key);
     }
 
     // Trash remember cookie
     else
-      Cookie.remove(ClientSession.config().sessionKey);
+      Cookie.remove(ClientSession.config().sessionCookieName);
     
     // Save remember cookie
     if (clientSession.rememberCookie)
-      Cookie.set(ClientSession.config().rememberKey, clientSession.rememberCookie, {
+      Cookie.set(ClientSession.config().rememberCookieName, clientSession.rememberCookie, {
         expires: clientSession.expires
       });
 
     // Trash session cookie
     else
-      Cookie.remove(ClientSession.config().rememberKey);
+      Cookie.remove(ClientSession.config().rememberCookieName);
   }
 });
