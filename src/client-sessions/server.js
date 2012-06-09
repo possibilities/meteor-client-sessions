@@ -148,7 +148,7 @@ Meteor.methods({
     var rememberValues = {
       key: key,
       rememberSalt: rememberSalt,
-      expires: new Date().addDays(15),
+      expires: new Date().addDays(15), // TODO this should be configurable
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
     ClientSessions.update(this.clientSession._id, { $set: rememberValues });
