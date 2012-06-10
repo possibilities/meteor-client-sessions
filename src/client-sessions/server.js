@@ -181,7 +181,7 @@ Meteor.publish('clientSessions', function(cookies) {
     }
   });
 
-   // remove data and turn off observe when client unsubs
+   // Remove data and turn off observe when client unsubs
    self.onStop(function () {
      handle.stop();
      
@@ -221,7 +221,6 @@ Meteor.methods({
   
   // The client will call back after it receives a new key
   // so we know it's safe to delete it
-  // TODO make sure this is working right
   invalidateKey: function(clientSessionKey) {
     ClientSessionKeys.update(clientSessionKey, {
       $set: {
