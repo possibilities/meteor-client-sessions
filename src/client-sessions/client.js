@@ -3,11 +3,10 @@ ClientSessions = new Meteor.Collection('clientSessions');
 
 // Subscribe to clientSessions
 Meteor.subscribe('clientSessions', {
-  var config = ClientSession.config();
 
   // Resume session using cookies if they're present.
-  sessionCookie: Cookie.get(config.sessionCookieName),
-  rememberCookie: Cookie.get(config.rememberCookieName)
+  sessionCookie: Cookie.get(ClientSession.config().sessionCookieName),
+  rememberCookie: Cookie.get(ClientSession.config().rememberCookieName)
 
 // When the subscriptions completes emit ready event
 }, function onClientSessionComplete() {
