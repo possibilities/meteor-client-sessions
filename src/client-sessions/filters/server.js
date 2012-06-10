@@ -22,6 +22,8 @@ ClientSessionFilters = {
           
           // Keep a reference for Meteor.methods
           this.clientSession = new ClientSession(clientSession);
+          // This is also nice to have around
+          this.clientSessionId = this.clientSession._id;
         }
       }
     }

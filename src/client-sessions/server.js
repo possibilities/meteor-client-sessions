@@ -195,15 +195,13 @@ Meteor.methods({
   
   // Get a new key for an established session
   refreshClientSession: function() {
-    var clientSessionId = this.clientSession._id;
-    ClientSession.exchangeKey(clientSessionId);
+    ClientSession.exchangeKey(this.clientSessionId);
   },
   
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var clientSessionId = this.clientSession._id;
-    var key = ClientSession.createKey(clientSessionId);
+    var key = ClientSession.createKey(this.clientSessionId);
     var config = ClientSession.config();
     var rememberSessionForNDays = config.rememberSessionForNDays;
     var rememberValues = {
@@ -212,13 +210,12 @@ Meteor.methods({
       expires: new Date().addDays(rememberSessionForNDays),
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
-    ClientSessions.update(clientSessionId, { $set: rememberValues });
+    ClientSessions.update(this.clientSessionId, { $set: rememberValues });
   },
 
   // Forget all about the current session
   forgetClientSession: function() {
-    var clientSessionId = this.clientSession._id;
-    ClientSession.clear(clientSessionId);
+    ClientSession.clear(this.clientSessionId);
   },
   
   // The client will call back after it receives a new key
