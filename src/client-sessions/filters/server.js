@@ -15,7 +15,7 @@ ClientSessionFilters = {
       if (key = ClientSessionKeys.findOne(keyId)) {
         
         // Use the retrieved key to look up the session
-        clientSession = ClientSessions.findOne(key.clientId);
+        clientSession = ClientSessions.findOne(key.clientSessionId);
         
         // Make sure the correct session is being asked for
         if (clientSession) {

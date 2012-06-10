@@ -6,7 +6,7 @@ _.mixin(_.string.exports());
 
 // Template methods
 
-Template.demo.clientId = function() {
+Template.demo.clientSessionId = function() {
   var session = ClientSessions.findOne();
   if (session) {
     return session.key;

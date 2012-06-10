@@ -13,7 +13,7 @@ Utils.decodeRememberToken = function(encodedRememberToken) {
   var digest = _.last(tokenParts);
   var key = ClientSessionKeys.findOne(rememberToken);
   if (key) {
-    var session = ClientSessions.findOne(key.clientId);
+    var session = ClientSessions.findOne(key.clientSessionId);
     var hash = Utils.generateHmac(session.rememberSalt, rememberToken);
     if (hash === digest) {
       return key._id;
