@@ -16,7 +16,7 @@ If you're implementing authentication on top of client-sessions [OWASP](https://
 
 2. The library exchanges/invalidates client session keys on a schedule (<- TODO) and whenever the page is refreshed but OWASP recommends renewing the session key after any privilege level change. See [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change). You can do this in your code like this:
 
-    Meteor.call('refreshClientSession');
+        Meteor.call('refreshClientSession');
 
 3. If you're only hosting one application per host the defaults should be good. See OWASP's [Domain and Path Attributes](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Domain_and_Path_Attributes) if you're setting the cookie's path or domain through `ClientSession.config()`.
 
