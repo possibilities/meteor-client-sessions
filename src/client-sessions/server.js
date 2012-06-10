@@ -137,6 +137,9 @@ Meteor.publish('clientSessions', function(cookies) {
   // bits to the client
   var handle = ClientSessions.find(query, params).observe({
 
+    // This happens once per client when the session is first created,
+    // publishes the relavent session info up to the client for the
+    // first time
     added: function (clientSession) {
 
       // Clean session up before publishing
@@ -148,6 +151,8 @@ Meteor.publish('clientSessions', function(cookies) {
       self.flush();
     },
     
+    // When the session changes it's usually because it is being remembered/forgotten or
+    // or values are being added to/removed from the `client` object
     changed: function (clientSession, index, oldClientSession) {
 
       // Figure out which keys have been deleted and unset them
