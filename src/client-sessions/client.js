@@ -3,10 +3,11 @@ ClientSessions = new Meteor.Collection('clientSessions');
 
 // Subscribe to clientSessions
 Meteor.subscribe('clientSessions', {
+  var config = ClientSession.config();
 
   // Resume session using cookies if they're present.
-  sessionCookie: Cookie.get(ClientSession.config().sessionCookieName),
-  rememberCookie: Cookie.get(ClientSession.config().rememberCookieName)
+  sessionCookie: Cookie.get(config.sessionCookieName),
+  rememberCookie: Cookie.get(config.rememberCookieName)
 
 // When the subscriptions completes emit ready event
 }, function onClientSessionComplete() {
@@ -25,6 +26,7 @@ Meteor.autosubscribe(function() {
       ClientSession.trigger('change');
     
     var secure = window.location.protocol === 'https:';
+    var config = ClientSession.config();
       
     // Make sure we have a session key
     if (clientSession.key) {
@@ -41,22 +43,28 @@ Meteor.autosubscribe(function() {
       }
       
       // Save session cookie
-      Cookie.set(ClientSession.config().sessionCookieName, clientSession.key, { httpOnly: true, secure: secure });
+      var cookieOptions = {
+        httpOnly: true,
+        secure: secure,
+        cookiePath: config.cookiePath,
+        cookieDomain: config.cookieDomain
+      };
+      Cookie.set(config.sessionCookieName, clientSession.key, cookieOptions);
     }
 
     // Trash remember cookie
     else
-      Cookie.remove(ClientSession.config().sessionCookieName);
+      Cookie.remove(config.sessionCookieName);
     
     // Save remember cookie
     if (clientSession.rememberCookie)
-      Cookie.set(ClientSession.config().rememberCookieName, clientSession.rememberCookie, {
+      Cookie.set(config.rememberCookieName, clientSession.rememberCookie, {
         expires: clientSession.expires,
         secure: secure
       });
 
     // Trash session cookie
     else
-      Cookie.remove(ClientSession.config().rememberCookieName);
+      Cookie.remove(config.rememberCookieName);
   }
 });

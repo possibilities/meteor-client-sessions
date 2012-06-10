@@ -40,7 +40,9 @@ _.extend(ClientSession, Backbone.Events);
 ClientSession._config = {
   sessionCookieName: '_meteor_session_id',
   rememberCookieName: '_meteor_remember_id',
-  rememberSessionForNDays: 15
+  rememberSessionForNDays: 15,
+  cookiePath: null,
+  domainPath: null
 };
 
 // Handle configuration

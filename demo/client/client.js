@@ -70,8 +70,9 @@ Template.demo.events = {
     Session.set('successMessage', "Who are you again?");
   },
   'click #deleteCookies': function() {
-    Cookie.remove(ClientSession.config().sessionCookieName);
-    Cookie.remove(ClientSession.config().rememberCookieName);
+    var config = ClientSession.config();
+    Cookie.remove(config.sessionCookieName);
+    Cookie.remove(config.rememberCookieName);
     Session.set('successMessage', "Yum, I ate your cookies¡!");
   }
 };

@@ -8,6 +8,20 @@ A smart package for tracking clients across requests
 
 I'll add instructions eventually. Until then check out demo app in repo.
 
+## Security recommendations
+
+If you're implementing authentication on top of client-sessions [OWASP](https://www.owasp.org) recommends a some things that the library doesn't (can't¿) enforce:
+
+1. Do everything over HTTPS!
+
+2. The library exchanges/invalidates client session keys on a schedule and whenever the browser is reloaded but OWASP recommends renewing the session ID after any privilege level change. See [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change). You can do this in your code like this:
+
+    Meteor.call('refreshClientSession');
+
+3. If you're only hosting one application per host the defaults should be good. See OWASP's [Domain and Path Attributes](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Domain_and_Path_Attributes) if you're setting the cookie's path or domain through `ClientSession.config()`.
+
+4.
+
 ## Running the demo
 
 1. Make sure you have Meteor installed
@@ -19,6 +33,8 @@ I'll add instructions eventually. Until then check out demo app in repo.
 Add an endpoint that can delete expired sessions, find nice way to schedule
 
 Some actions hit `changed` twice, look into it and make sure we're not exchanging the key twice
+
+Can we offer different cookie keys pre and post auth? See the end of this [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change)
 
 ## Credits
 

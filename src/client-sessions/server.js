@@ -204,7 +204,8 @@ Meteor.methods({
     var rememberSalt = Meteor.uuid();
     var clientSessionId = this.clientSession._id;
     var key = ClientSession.createSessionKey(clientSessionId);
-    var rememberSessionForNDays = ClientSession.config().rememberSessionForNDays;
+    var config = ClientSession.config();
+    var rememberSessionForNDays = config.rememberSessionForNDays;
     var rememberValues = {
       keyUpdatedAt: new Date(), 
       rememberSalt: rememberSalt,
