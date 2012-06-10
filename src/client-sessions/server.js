@@ -10,27 +10,27 @@ Secure.noDataMagic('clientSessionKeys');
 _.extend(ClientSession, {
 
   // Find or create a session
-  createOrRestoreSession: function(cookies) {
+  createOrRestore: function(cookies) {
     var clientSessionId;
     cookies || (cookies = {});
 
     // If we have cookies try to restore the session
     if (cookies.rememberCookie || cookies.sessionCookie)
-      clientSessionId = this.restoreSession(cookies);
+      clientSessionId = this.restore(cookies);
 
     // If we find a session update the key
     if (clientSessionId)
-      this.exchangeSessionKey(clientSessionId);
+      this.exchangeKey(clientSessionId);
 
     // If no session make one
     else
-      clientSessionId = this.createSession();
+      clientSessionId = this.create();
 
     return clientSessionId;
   },
 
   // Make a session
-  createSession: function() {
+  create: function() {
     
     // Make a new session
     var clientSessionId = ClientSessions.insert({
@@ -39,13 +39,13 @@ _.extend(ClientSession, {
     });
     
     // Get a new key
-    this.exchangeSessionKey(clientSessionId);
+    this.exchangeKey(clientSessionId);
 
     return clientSessionId;
   },
 
   // Find a session via cookies
-  restoreSession: function(cookies) {
+  restore: function(cookies) {
     var sessionKey, sessionKeyId;
 
     // If we have cookies figure out the session Id
@@ -69,10 +69,10 @@ _.extend(ClientSession, {
   }, 
   
   // Trash it!
-  clearSession: function(clientSessionId) {
+  clear: function(clientSessionId) {
     
     // Make a new key for the session
-    this.createSessionKey(clientSessionId);
+    this.createKey(clientSessionId);
     
     // Clear or reset all the attributes
     ClientSessions.update(clientSessionId, {
@@ -88,7 +88,7 @@ _.extend(ClientSession, {
   },
 
   // Make a new key for the current session
-  createSessionKey: function(clientSessionId) {
+  createKey: function(clientSessionId) {
     
     // Get a new key for the current session
     return ClientSessionKeys.insert({
@@ -98,10 +98,10 @@ _.extend(ClientSession, {
   },
 
   // Exchange the session key for a new one
-  exchangeSessionKey: function(clientSessionId) {
+  exchangeKey: function(clientSessionId) {
     
     // Get a new key for the session
-    this.createSessionKey(clientSessionId);
+    this.createKey(clientSessionId);
 
     // Now update the key attribute of the session
     ClientSessions.update(clientSessionId, {
@@ -116,7 +116,7 @@ Meteor.publish('clientSessions', function(cookies) {
   var uuid = Meteor.uuid();
 
   // Find or make a client session
-  var clientSessionId = ClientSession.createOrRestoreSession(cookies);
+  var clientSessionId = ClientSession.createOrRestore(cookies);
 
   // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
@@ -196,14 +196,14 @@ Meteor.methods({
   // Get a new key for an established session
   refreshClientSession: function() {
     var clientSessionId = this.clientSession._id;
-    ClientSession.exchangeSessionKey(clientSessionId);
+    ClientSession.exchangeKey(clientSessionId);
   },
   
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
     var clientSessionId = this.clientSession._id;
-    var key = ClientSession.createSessionKey(clientSessionId);
+    var key = ClientSession.createKey(clientSessionId);
     var config = ClientSession.config();
     var rememberSessionForNDays = config.rememberSessionForNDays;
     var rememberValues = {
@@ -218,7 +218,7 @@ Meteor.methods({
   // Forget all about the current session
   forgetClientSession: function() {
     var clientSessionId = this.clientSession._id;
-    ClientSession.clearSession(clientSessionId);
+    ClientSession.clear(clientSessionId);
   },
   
   // The client will call back after it receives a new key
