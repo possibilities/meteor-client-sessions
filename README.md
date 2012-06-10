@@ -20,8 +20,6 @@ If you're implementing authentication on top of client-sessions [OWASP](https://
 
 3. If you're only hosting one application per host the defaults should be good. See OWASP's [Domain and Path Attributes](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Domain_and_Path_Attributes) if you're setting the cookie's path or domain through `ClientSession.config()`.
 
-4.
-
 ## Running the demo
 
 1. Make sure you have Meteor installed
