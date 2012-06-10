@@ -8,8 +8,9 @@ ClientSession = function(session) {
 // Setter and getter for client variables
 
 ClientSession.prototype.set = function(key, value) {
+  var clientSessionId = this._id;
   this.client[key] = value;
-  ClientSessions.update(this._id, { $set: { client: this.client } });
+  ClientSessions.update(clientSessionId, { $set: { client: this.client } });
 };
 
 ClientSession.prototype.get = function(key) {

@@ -127,10 +127,10 @@ Meteor.publish('clientSessions', function(cookies) {
     // If we have a key go ahead and prepare the session for
     // syncing to the client
     if (clientSessionKey) {
-      var key = clientSessionKey._id;
+      var clientSessionKey = clientSessionKey._id;
 
       return {
-        key:             key,
+        key:             clientSessionKey,
         client:          clientSession.client,
         expires:         clientSession.expires,
         rememberCookie:  clientSession.rememberCookie
@@ -195,25 +195,28 @@ Meteor.methods({
   
   // Get a new key for an established session
   refreshClientSession: function() {
-    ClientSession.exchangeSessionKey(this.clientSession._id);
+    var clientSessionId = this.clientSession._id;
+    ClientSession.exchangeSessionKey(clientSessionId);
   },
   
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var key = ClientSession.createSessionKey(this.clientSession._id);
+    var clientSessionId = this.clientSession._id;
+    var key = ClientSession.createSessionKey(clientSessionId);
     var rememberValues = {
       keyUpdatedAt: new Date(), 
       rememberSalt: rememberSalt,
       expires: new Date().addDays(15), // TODO this should be configurable
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
-    ClientSessions.update(this.clientSession._id, { $set: rememberValues });
+    ClientSessions.update(clientSessionId, { $set: rememberValues });
   },
 
   // Forget all about the current session
   forgetClientSession: function() {
-    ClientSession.clearSession(this.clientSession._id);
+    var clientSessionId = this.clientSession._id;
+    ClientSession.clearSession(clientSessionId);
   },
   
   // The client will call back after it receives a new key
