@@ -204,10 +204,11 @@ Meteor.methods({
     var rememberSalt = Meteor.uuid();
     var clientSessionId = this.clientSession._id;
     var key = ClientSession.createSessionKey(clientSessionId);
+    var rememberSessionForNDays = ClientSession.config().rememberSessionForNDays;
     var rememberValues = {
       keyUpdatedAt: new Date(), 
       rememberSalt: rememberSalt,
-      expires: new Date().addDays(15), // TODO this should be configurable
+      expires: new Date().addDays(rememberSessionForNDays),
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
     };
     ClientSessions.update(clientSessionId, { $set: rememberValues });
