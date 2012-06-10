@@ -12,7 +12,7 @@ I'll add instructions eventually. Until then check out demo app in repo.
 
 If you're implementing authentication on top of `meteor-client-sessions` [OWASP](https://www.owasp.org) has 'cheat sheets' that are a great resource and jumping off point for learning about security best practices. See the references section below. Some things that `meteor-client-sessions` can help with but doesn't (can't¿) enforce:
 
-1. Do everything over HTTPS! If you do we set the `secure` attribute on your cookies.
+1. Do everything over HTTPS! Client sessions start up right away so the whole application should be run over HTTPS. If you do we set the `secure` attribute on your cookies.
 
 2. The library exchanges/invalidates client session keys on a schedule (<- TODO) and whenever the page is refreshed but OWASP recommends renewing the session key after any privilege level change. See [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change). You can do this in your code like this:
 
