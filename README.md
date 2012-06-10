@@ -18,6 +18,8 @@ I'll add instructions eventually. Until then check out demo app in repo.
 
 Add an endpoint that can delete expired sessions, find nice way to schedule
 
+Some actions hit `changed` twice, look into it and make sure we're not exchanging the key twice
+
 ## Credits
 
 Thanks to [Olivier Refalo](https://github.com/orefalo) ([@orefalo](@orefalo)) for his pull requests and input!

@@ -72,7 +72,7 @@ _.extend(ClientSession, {
   clearSession: function(clientSessionId) {
     
     // Make a new key for the session
-    var key = this.createSessionKey(clientSessionId);
+    this.createSessionKey(clientSessionId);
     
     // Clear or reset all the attributes
     ClientSessions.update(clientSessionId, {
@@ -81,7 +81,6 @@ _.extend(ClientSession, {
         expires: true
       },
       $set: {
-        key: key,
         createdAt: new Date(),
         client: {}
       }
@@ -102,11 +101,11 @@ _.extend(ClientSession, {
   exchangeSessionKey: function(clientSessionId) {
     
     // Get a new key for the session
-    var key = this.createSessionKey(clientSessionId);
+    this.createSessionKey(clientSessionId);
 
     // Now update the key attribute of the session
     ClientSessions.update(clientSessionId, {
-      $set: { key: key, keyUpdatedAt: new Date() }
+      $set: { keyUpdatedAt: new Date() }
     });
 
   }
@@ -121,12 +120,22 @@ Meteor.publish('clientSessions', function(cookies) {
 
   // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
-    return {
-      client:          clientSession.client,
-      key:             clientSession.key,
-      rememberCookie:  clientSession.rememberCookie,
-      expires:         clientSession.expires
-    };
+
+    // Get the latest session key to sync to the server
+    var clientSessionKey = ClientSessionKeys.findOne({ clientSessionId: clientSessionId }, { sort: { createdAt: -1 } });
+
+    // If we have a key go ahead and prepare the session for
+    // syncing to the client
+    if (clientSessionKey) {
+      var key = clientSessionKey._id;
+
+      return {
+        key:             key,
+        client:          clientSession.client,
+        expires:         clientSession.expires,
+        rememberCookie:  clientSession.rememberCookie
+      };
+    }
   };
 
   // Setup for finding the client's session
@@ -145,10 +154,12 @@ Meteor.publish('clientSessions', function(cookies) {
       // Clean session up before publishing
       clientSession = prepareClientSession(clientSession);
 
-      // Publish
-      self.set("clientSessions", uuid, clientSession);
-      self.complete();
-      self.flush();
+      // Sync session to client
+      if (clientSession) {
+        self.set("clientSessions", uuid, clientSession);
+        self.complete();
+        self.flush();
+      }
     },
     
     // When the session changes it's usually because it is being remembered/forgotten or
@@ -162,9 +173,11 @@ Meteor.publish('clientSessions', function(cookies) {
       // Clean session up before publishing
       clientSession = prepareClientSession(clientSession);
 
-      // Publish
-      self.set("clientSessions", uuid, clientSession);
-      self.flush();
+      // Sync session to client
+      if (clientSession) {
+        self.set("clientSessions", uuid, clientSession);
+        self.flush();
+      }
     }
   });
 
@@ -188,11 +201,8 @@ Meteor.methods({
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    // This is really the same thing as exchanging the key but
-    // we don't want two queries so we do it manually
     var key = ClientSession.createSessionKey(this.clientSession._id);
     var rememberValues = {
-      key: key,
       keyUpdatedAt: new Date(), 
       rememberSalt: rememberSalt,
       expires: new Date().addDays(15), // TODO this should be configurable
@@ -208,8 +218,9 @@ Meteor.methods({
   
   // The client will call back after it receives a new key
   // so we know it's safe to delete it
-  invalidateKey: function(key) {
-    ClientSessionKeys.update({ key: key }, {
+  // TODO make sure this is working right
+  invalidateKey: function(clientSessionKey) {
+    ClientSessionKeys.update(clientSessionKey, {
       $set: {
         deletedAt: new Date()
       }
