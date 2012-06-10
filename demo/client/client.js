@@ -37,19 +37,7 @@ Template.demo.userForm = function() {
 
 // Tools & tricks
 
-ClientSessionHelpers = {
-  updateUserName: function() {
-    var $nameElement = $('#userName');
-    var name = $nameElement.attr('value');
-    if (!_.isBlank(name)) {
-      var clientSession = ClientSessions.findOne();
-      if (clientSession) {
-        Meteor.call('updateUserName', name);
-        $nameElement.attr('value', '');
-        Session.set('successMessage', 'Nice, you added your name to your session!');
-      }
-    }
-  },
+DemoHelpers = {
   successFadeOutAfter: function(afterSeconds) {
     if (this.timeoutId) Meteor.clearTimeout(this.timeoutId);
     this.timeoutId = Meteor.setTimeout(function() {
@@ -115,7 +103,7 @@ ClientSession.on('ready', function() {
 // Deal with fading out success message
 Meteor.autosubscribe(function() {
   if (Session.get('successMessage')) {
-    ClientSessionHelpers.successFadeOutAfter(5000);
+    DemoHelpers.successFadeOutAfter(5000);
   } 
 });
 
