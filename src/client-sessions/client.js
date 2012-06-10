@@ -23,6 +23,8 @@ Meteor.autosubscribe(function() {
     // Emit change event when the session changes
     if (ClientSession._previousKey)
       ClientSession.trigger('change');
+    
+    var secure = window.location.protocol === 'https:';
       
     // Make sure we have a session key
     if (clientSession.key) {
@@ -39,7 +41,7 @@ Meteor.autosubscribe(function() {
       }
       
       // Save session cookie
-      Cookie.set(ClientSession.config().sessionCookieName, clientSession.key);
+      Cookie.set(ClientSession.config().sessionCookieName, clientSession.key, { httpOnly: true, secure: secure });
     }
 
     // Trash remember cookie
@@ -49,7 +51,8 @@ Meteor.autosubscribe(function() {
     // Save remember cookie
     if (clientSession.rememberCookie)
       Cookie.set(ClientSession.config().rememberCookieName, clientSession.rememberCookie, {
-        expires: clientSession.expires
+        expires: clientSession.expires,
+        secure: secure
       });
 
     // Trash session cookie
