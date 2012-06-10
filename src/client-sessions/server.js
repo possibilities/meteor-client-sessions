@@ -6,7 +6,7 @@ ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 Secure.noDataMagic('clientSessions');
 Secure.noDataMagic('clientSessionKeys');
 
-SessionHelpers = {
+_.extend(ClientSession, {
 
   // Find or create a session
   createOrRestoreSession: function(cookies) {
@@ -109,14 +109,14 @@ SessionHelpers = {
     });
 
   }
-};
+});
 
 Meteor.publish('clientSessions', function(cookies) {
   var self = this;
   var uuid = Meteor.uuid();
 
   // Find or make a client session
-  var clientId = SessionHelpers.createOrRestoreSession(cookies);
+  var clientId = ClientSession.createOrRestoreSession(cookies);
 
   // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
@@ -176,13 +176,13 @@ Meteor.methods({
   
   // Get a new key for an established session
   refreshClientSession: function() {
-    SessionHelpers.updateKeyForSession(this.clientSession._id);
+    ClientSession.updateKeyForSession(this.clientSession._id);
   },
   
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var key = SessionHelpers.createKeyForSession(this.clientSession._id);
+    var key = ClientSession.createKeyForSession(this.clientSession._id);
     var rememberValues = {
       key: key,
       rememberSalt: rememberSalt,
@@ -194,7 +194,7 @@ Meteor.methods({
 
   // Forget all about the current session
   forgetClientSession: function() {
-    SessionHelpers.clearSession(this.clientSession._id);
+    ClientSession.clearSession(this.clientSession._id);
   },
   
   // The client will call back after it receives a new key
