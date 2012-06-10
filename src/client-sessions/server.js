@@ -6,6 +6,7 @@ ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 Secure.noDataMagic('clientSessions');
 Secure.noDataMagic('clientSessionKeys');
 
+// Add useful class methods to ClientSession
 _.extend(ClientSession, {
 
   // Find or create a session
@@ -19,7 +20,7 @@ _.extend(ClientSession, {
 
     // If we find a session update the key
     if (clientId)
-      this.updateKeyForSession(clientId);
+      this.exchangeSessionKey(clientId);
 
     // If no session make one
     else
@@ -38,7 +39,7 @@ _.extend(ClientSession, {
     });
     
     // Get a new key
-    this.updateKeyForSession(clientId);
+    this.exchangeSessionKey(clientId);
 
     return clientId;
   },
@@ -71,7 +72,7 @@ _.extend(ClientSession, {
   clearSession: function(clientId) {
     
     // Make a new key for the session
-    var key = this.createKeyForSession(clientId);
+    var key = this.createSessionKey(clientId);
     
     // Clear or reset all the attributes
     ClientSessions.update(clientId, {
@@ -88,7 +89,7 @@ _.extend(ClientSession, {
   },
 
   // Make a new key for the current session
-  createKeyForSession: function(clientId) {
+  createSessionKey: function(clientId) {
     
     // Get a new key for the current session
     return ClientSessionKeys.insert({
@@ -97,15 +98,15 @@ _.extend(ClientSession, {
     });
   },
 
-  // Make and attach a new key to the current session
-  updateKeyForSession: function(clientId) {
+  // Exchange the session key for a new one
+  exchangeSessionKey: function(clientId) {
     
     // Get a new key for the session
-    var key = this.createKeyForSession(clientId);
+    var key = this.createSessionKey(clientId);
 
     // Now update the key attribute of the session
     ClientSessions.update(clientId, {
-      $set: { key: key }
+      $set: { key: key, keyUpdatedAt: new Date() }
     });
 
   }
@@ -176,15 +177,18 @@ Meteor.methods({
   
   // Get a new key for an established session
   refreshClientSession: function() {
-    ClientSession.updateKeyForSession(this.clientSession._id);
+    ClientSession.exchangeSessionKey(this.clientSession._id);
   },
   
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var key = ClientSession.createKeyForSession(this.clientSession._id);
+    // This is really the same thing as exchanging the key but
+    // we don't want two queries so we do it manually
+    var key = ClientSession.createSessionKey(this.clientSession._id);
     var rememberValues = {
       key: key,
+      keyUpdatedAt: new Date(), 
       rememberSalt: rememberSalt,
       expires: new Date().addDays(15), // TODO this should be configurable
       rememberCookie: Utils.encodeRememberToken(rememberSalt, key)
