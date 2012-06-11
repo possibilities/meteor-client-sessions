@@ -106,7 +106,8 @@ _.extend(ClientSession, {
       client: {}
     };
 
-    ClientSessions.insert(clientSession);
+    var clientSessionId = ClientSessions.insert(clientSession);
+    clientSession._id = clientSessionId;
 
     return new ClientSession(clientSession);
   },
