@@ -122,12 +122,18 @@ _.extend(ClientSession, {
     else
       sessionKeyId = Utils.decodeRememberToken(cookies.rememberCookie);
 
-    // We found a session key ID, use to get the actual session key
+    // We found a session key ID, use to get the session key
     if (sessionKeyId) {
       sessionKey = ClientSessionKeys.findOne(sessionKeyId);
+
+      // Found the session Key, use it to get the session
       if (sessionKey) {
         if (clientSession = ClientSessions.findOne(sessionKey.clientSessionId)) {
+          
+          // Cast as a ClientSession
           clientSession = new ClientSession(clientSession);
+          
+          // Exchange the key and return it
           clientSession.exchangeKey();
           return clientSession;
         }
