@@ -41,6 +41,7 @@ ClientSession._config = {
   sessionCookieName: '_meteor_session_id',
   rememberCookieName: '_meteor_remember_id',
   rememberSessionForNDays: 15,
+  exchangeKeyEveryNSeconds: 60,
   cookiePath: null,
   domainPath: null
 };

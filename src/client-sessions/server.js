@@ -67,6 +67,8 @@ _.extend(ClientSession, {
     }
     
   }, 
+
+  // TODO all of these methods accept a clientSessionId as a parameter, means they should be instance methods!
   
   // Trash it!
   clear: function(clientSessionId) {
@@ -99,7 +101,9 @@ _.extend(ClientSession, {
 
   // Exchange the session key for a new one
   exchangeKey: function(clientSessionId) {
-    
+
+    //TODO Debounce (or is it throttle?) this method
+
     // Get a new key for the session
     this.createKey(clientSessionId);
 
@@ -108,15 +112,41 @@ _.extend(ClientSession, {
       $set: { keyUpdatedAt: new Date() }
     });
 
+  },
+  
+  _schedule: {},
+
+  stopScheduledTasks: function(clientSessionId) {
+    
+    // Stop exchanging the key periodically
+    if (this._schedule[clientSessionId]) {
+     Meteor.clearInterval(this._schedule[clientSessionId]);
+      delete this._schedule[clientSessionId];
+    }
+  },
+
+  startScheduledTasks: function(clientSessionId) {
+    var self = this;
+    var config = ClientSession.config();
+
+    // Exchange the session key periodically
+    if (!this._schedule[clientSessionId])
+      this._schedule[clientSessionId] = Meteor.setInterval(function() {
+        self.exchangeKey(clientSessionId);
+      }, config.exchangeKeyEveryNSeconds * 1000);
   }
+
 });
 
 Meteor.publish('clientSessions', function(cookies) {
   var self = this;
-  var uuid = Meteor.uuid();
+  var subscriptionId = Meteor.uuid();
 
   // Find or make a client session
   var clientSessionId = ClientSession.createOrRestore(cookies);
+
+  // Periodically exchange the session key
+  ClientSession.startScheduledTasks(clientSessionId);
 
   // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
@@ -144,7 +174,7 @@ Meteor.publish('clientSessions', function(cookies) {
 
   // Watch the user's client session and publish relavent
   // bits to the client
-  var handle = ClientSessions.find(query, params).observe({
+  var observeClientSessions = ClientSessions.find(query, params).observe({
 
     // This happens once per client when the session is first created,
     // publishes the relavent session info up to the client for the
@@ -156,7 +186,7 @@ Meteor.publish('clientSessions', function(cookies) {
 
       // Sync session to client
       if (clientSession) {
-        self.set("clientSessions", uuid, clientSession);
+        self.set("clientSessions", subscriptionId, clientSession);
         self.complete();
         self.flush();
       }
@@ -168,27 +198,33 @@ Meteor.publish('clientSessions', function(cookies) {
 
       // Figure out which keys have been deleted and unset them
       var deleteKeys = _.difference(_.keys(oldClientSession), _.keys(clientSession));
-      self.unset('clientSessions', uuid, deleteKeys);
+      self.unset('clientSessions', subscriptionId, deleteKeys);
 
       // Clean session up before publishing
       clientSession = prepareClientSession(clientSession);
 
       // Sync session to client
       if (clientSession) {
-        self.set("clientSessions", uuid, clientSession);
+        self.set("clientSessions", subscriptionId, clientSession);
         self.flush();
       }
     }
   });
 
-   // Remove data and turn off observe when client unsubs
-   self.onStop(function () {
-     handle.stop();
-     
-     // TODO this should clear everything!
-     self.unset('clientSessions', uuid, []);
-     self.flush();
-   });
+  // Remove data and turn off observe when client unsubs
+  self.onStop(function () {
+  
+    // Stop watching client session
+    observeClientSessions.stop();
+    
+    // Stop doing whatever we've scheduled
+    ClientSession.stopScheduledTasks(clientSessionId);
+
+    // Clear the published collection and flush to the client
+    // TODO this should clear everything!
+    self.unset('clientSessions', subscriptionId, []);
+    self.flush();
+  });
 });
 
 Meteor.methods({
