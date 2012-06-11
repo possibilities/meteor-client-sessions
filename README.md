@@ -14,7 +14,7 @@ If you're implementing authentication on top of `meteor-client-sessions` [OWASP]
 
 1. Do everything over HTTPS! Client sessions start up right away so the whole application should be run over HTTPS. If you do we set the `secure` attribute on your cookies.
 
-2. The library exchanges/invalidates client session keys on a schedule (<- TODO) and whenever the page is refreshed but OWASP recommends renewing the session key after any privilege level change. See [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change). You can do this in your code like this:
+2. The library exchanges/invalidates client session keys on a schedule and whenever the page is refreshed but OWASP recommends renewing the session key after any privilege level change. See [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change). You can do this in your code like this:
 
         Meteor.call('refreshClientSession');
 
@@ -29,8 +29,6 @@ If you're implementing authentication on top of `meteor-client-sessions` [OWASP]
 ## TODO
 
 Add an endpoint that can delete expired sessions, find nice way to schedule
-
-Some actions hit `changed` twice, look into it and make sure we're not exchanging the key twice
 
 Can we offer different cookie keys pre and post auth? See the end of this [Renew the Session ID After Any Privilege Level Change](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Renew_the_Session_ID_After_Any_Privilege_Level_Change)
 
