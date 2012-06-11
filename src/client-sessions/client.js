@@ -5,6 +5,7 @@ ClientSessions = new Meteor.Collection('clientSessions');
 Meteor.subscribe('clientSessions', {
 
   // Resume session using cookies if they're present.
+  // TODO avoid getting the config twice by putting this all in closure
   sessionCookie: Cookie.get(ClientSession.config().sessionCookieName),
   rememberCookie: Cookie.get(ClientSession.config().rememberCookieName)
 
