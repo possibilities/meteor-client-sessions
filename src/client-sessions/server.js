@@ -54,7 +54,7 @@ _.extend(ClientSession.prototype, {
   
   _tasks: {},
 
-  stopScheduledTasks: function() {
+  stopTasks: function() {
     
     // Stop exchanging the key periodically
     if (this._tasks.exchangeKey)
@@ -62,7 +62,7 @@ _.extend(ClientSession.prototype, {
       delete this._tasks.exchangeKey;
   },
 
-  startScheduledTasks: function() {
+  startTasks: function() {
     var self = this;
     var config = ClientSession.config();
 
@@ -146,7 +146,7 @@ Meteor.publish('clientSessions', function(cookies) {
   var clientSessionId = clientSession._id;
 
   // Periodically exchange the session key
-  clientSession.startScheduledTasks();
+  clientSession.startTasks();
 
   // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
@@ -218,7 +218,7 @@ Meteor.publish('clientSessions', function(cookies) {
     observeClientSessions.stop();
     
     // Stop doing whatever we've scheduled
-    clientSession.stopScheduledTasks();
+    clientSession.stopTasks();
 
     // Clear the published collection and flush to the client
     // TODO this should clear everything!
