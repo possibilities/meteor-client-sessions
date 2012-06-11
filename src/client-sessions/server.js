@@ -54,7 +54,6 @@ _.extend(ClientSession.prototype, {
 
   },
   
-  // TODO these should be instance methods too
   _tasks: {},
   
   stopTasks: function() {
@@ -95,9 +94,6 @@ _.extend(ClientSession, {
     if (!clientSession)
       clientSession = this.create();
 
-    // If we finally have a session exchange it's key
-    clientSession.exchangeKey();
-
     return clientSession;
   },
 
@@ -131,7 +127,9 @@ _.extend(ClientSession, {
       sessionKey = ClientSessionKeys.findOne(sessionKeyId);
       if (sessionKey) {
         if (clientSession = ClientSessions.findOne(sessionKey.clientSessionId)) {
-          return new ClientSession(clientSession);
+          clientSession = new ClientSession(clientSession);
+          clientSession.exchangeKey();
+          return clientSession;
         }
       }
     }
