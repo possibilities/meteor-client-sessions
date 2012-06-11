@@ -26,7 +26,6 @@ var userForm = new InlineForm({
   method: 'saveUser',
   noInputLabels: true,
   clearOnSuccess: false,
-  headerTemplate: 'userFormHeader',
   inputs: [
     'name', {
       classes: 'input-large',
