@@ -221,8 +221,7 @@ Meteor.publish('clientSessions', function(cookies) {
     clientSession._stopTasks();
 
     // Clear the published collection and flush to the client
-    // TODO this should clear everything!
-    self.unset('clientSessions', subscriptionId, []);
+    self.unset('clientSessions', subscriptionId, _.keys(clientSession));
     self.flush();
   });
 });
