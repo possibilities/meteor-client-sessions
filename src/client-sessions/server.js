@@ -66,13 +66,12 @@ _.extend(ClientSession, {
     if (cookies.rememberCookie || cookies.sessionCookie)
       clientSession = this.restore(cookies);
 
-    // If we find a session update the key
-    if (clientSession)
-      clientSession.exchangeKey();
-
     // If no session make one
-    else
+    if (!clientSession)
       clientSession = this.create();
+
+    // Either way generate key
+    clientSession.exchangeKey();
 
     return clientSession;
   },
@@ -88,12 +87,7 @@ _.extend(ClientSession, {
 
     ClientSessions.insert(clientSession);
 
-    clientSession = new ClientSession(clientSession);
-    
-    // Get a new key
-    clientSession.exchangeKey();
-
-    return clientSession;
+    return new ClientSession(clientSession);
   },
 
   // Find a session via cookies
