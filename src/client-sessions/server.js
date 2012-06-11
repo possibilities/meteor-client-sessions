@@ -6,47 +6,93 @@ ClientSessionKeys = new Meteor.Collection('clientSessionKeys');
 Secure.noDataMagic('clientSessions');
 Secure.noDataMagic('clientSessionKeys');
 
-// Add useful class methods to ClientSession
+// Add instance methods to ClientSession
+_.extend(ClientSession.prototype, {
+
+  // Trash it!
+  clear: function() {
+    
+    // Make a new key for the session
+    this.createKey();
+    
+    // Clear or reset all the attributes
+    ClientSessions.update(this._id, {
+      $unset: {
+        rememberCookie: true,
+        expires: true
+      },
+      $set: {
+        createdAt: new Date(),
+        client: {}
+      }
+    });
+  },
+
+  // Make a new key for the current session
+  createKey: function() {
+    
+    // Get a new key for the current session
+    return ClientSessionKeys.insert({
+      createdAt: new Date(),
+      clientSessionId: this._id
+    });
+  },
+
+  // Exchange the session key for a new one
+  exchangeKey: function() {
+
+    //TODO Debounce (or is it throttle?) this method
+
+    // Get a new key for the session
+    this.createKey();
+
+    // Now update the key attribute of the session
+    ClientSessions.update(this._id, {
+      $set: { keyUpdatedAt: new Date() }
+    });
+
+  }
+});
+
+// Add class methods to ClientSession
 _.extend(ClientSession, {
 
   // Find or create a session
   createOrRestore: function(cookies) {
-    var clientSessionId;
+    var clientSession;
     cookies || (cookies = {});
 
     // If we have cookies try to restore the session
     if (cookies.rememberCookie || cookies.sessionCookie)
-      clientSessionId = this.restore(cookies);
-
-    // If we find a session update the key
-    if (clientSessionId)
-      this.exchangeKey(clientSessionId);
+      clientSession = this.restore(cookies);
 
     // If no session make one
-    else
-      clientSessionId = this.create();
+    if (!clientSession)
+      clientSession = this.create();
 
-    return clientSessionId;
+    // Either way generate key
+    clientSession.exchangeKey();
+
+    return clientSession;
   },
 
   // Make a session
   create: function() {
     
     // Make a new session
-    var clientSessionId = ClientSessions.insert({
+    var clientSession = {
       createdAt: new Date(),
       client: {}
-    });
-    
-    // Get a new key
-    this.exchangeKey(clientSessionId);
+    };
 
-    return clientSessionId;
+    ClientSessions.insert(clientSession);
+
+    return new ClientSession(clientSession);
   },
 
   // Find a session via cookies
   restore: function(cookies) {
-    var sessionKey, sessionKeyId;
+    var clientSession, sessionKey, sessionKeyId;
 
     // If we have cookies figure out the session Id
     if (cookies.sessionCookie)
@@ -60,60 +106,15 @@ _.extend(ClientSession, {
     if (sessionKeyId) {
       sessionKey = ClientSessionKeys.findOne(sessionKeyId);
       if (sessionKey) {
-        if (ClientSessions.find(sessionKey.clientSessionId).count() > 0) {
-          return sessionKey.clientSessionId;
+        clientSession = ClientSessions.findOne(sessionKey.clientSessionId);
+        if (clientSession) {
+          return new ClientSession(clientSession);
         }
       }
     }
     
   }, 
 
-  // TODO all of these methods accept a clientSessionId as a parameter, means they should be instance methods!
-  
-  // Trash it!
-  clear: function(clientSessionId) {
-    
-    // Make a new key for the session
-    this.createKey(clientSessionId);
-    
-    // Clear or reset all the attributes
-    ClientSessions.update(clientSessionId, {
-      $unset: {
-        rememberCookie: true,
-        expires: true
-      },
-      $set: {
-        createdAt: new Date(),
-        client: {}
-      }
-    });
-  },
-
-  // Make a new key for the current session
-  createKey: function(clientSessionId) {
-    
-    // Get a new key for the current session
-    return ClientSessionKeys.insert({
-      createdAt: new Date(),
-      clientSessionId: clientSessionId
-    });
-  },
-
-  // Exchange the session key for a new one
-  exchangeKey: function(clientSessionId) {
-
-    //TODO Debounce (or is it throttle?) this method
-
-    // Get a new key for the session
-    this.createKey(clientSessionId);
-
-    // Now update the key attribute of the session
-    ClientSessions.update(clientSessionId, {
-      $set: { keyUpdatedAt: new Date() }
-    });
-
-  },
-  
   _schedule: {},
 
   stopScheduledTasks: function(clientSessionId) {
@@ -132,7 +133,7 @@ _.extend(ClientSession, {
     // Exchange the session key periodically
     if (!this._schedule[clientSessionId])
       this._schedule[clientSessionId] = Meteor.setInterval(function() {
-        self.exchangeKey(clientSessionId);
+        self.exchangeKey();
       }, config.exchangeKeyEveryNSeconds * 1000);
   }
 
@@ -143,7 +144,8 @@ Meteor.publish('clientSessions', function(cookies) {
   var subscriptionId = Meteor.uuid();
 
   // Find or make a client session
-  var clientSessionId = ClientSession.createOrRestore(cookies);
+  var clientSession = ClientSession.createOrRestore(cookies);
+  var clientSessionId = clientSession._id;
 
   // Periodically exchange the session key
   ClientSession.startScheduledTasks(clientSessionId);
@@ -231,13 +233,13 @@ Meteor.methods({
   
   // Get a new key for an established session
   refreshClientSession: function() {
-    ClientSession.exchangeKey(this.clientSessionId);
+    this.clientSession.exchangeKey();
   },
   
   // Remember the session after the browser session is over
   rememberClientSession: function() {
     var rememberSalt = Meteor.uuid();
-    var key = ClientSession.createKey(this.clientSessionId);
+    var key = this.clientSession.createKey();
     var config = ClientSession.config();
     var rememberSessionForNDays = config.rememberSessionForNDays;
     var rememberValues = {
@@ -251,7 +253,7 @@ Meteor.methods({
 
   // Forget all about the current session
   forgetClientSession: function() {
-    ClientSession.clear(this.clientSessionId);
+    this.clientSession.clear();
   },
   
   // The client will call back after it receives a new key
