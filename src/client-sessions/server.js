@@ -50,8 +50,29 @@ _.extend(ClientSession.prototype, {
     ClientSessions.update(this._id, {
       $set: { keyUpdatedAt: new Date() }
     });
+  },
+  
+  _tasks: {},
 
+  stopScheduledTasks: function() {
+    
+    // Stop exchanging the key periodically
+    if (this._tasks.exchangeKey)
+     Meteor.clearInterval(this._tasks.exchangeKey);
+      delete this._tasks.exchangeKey;
+  },
+
+  startScheduledTasks: function() {
+    var self = this;
+    var config = ClientSession.config();
+
+    // Exchange the session key periodically
+    if (!this._tasks.exchangeKey)
+      this._tasks.exchangeKey = Meteor.setInterval(function() {
+        self._exchangeKey();
+      }, config.exchangeKeyEveryNSeconds * 1000);
   }
+  
 });
 
 // Add class methods to ClientSession
@@ -112,32 +133,7 @@ _.extend(ClientSession, {
         }
       }
     }
-    
-  }, 
-
-  _schedule: {},
-
-  stopScheduledTasks: function(clientSessionId) {
-    
-    // Stop exchanging the key periodically
-    if (this._schedule[clientSessionId]) {
-     Meteor.clearInterval(this._schedule[clientSessionId]);
-      delete this._schedule[clientSessionId];
-    }
-  },
-
-  startScheduledTasks: function(clientSessionId) {
-    var self = this;
-    var config = ClientSession.config();
-
-    // Exchange the session key periodically
-    if (!this._schedule[clientSessionId])
-      this._schedule[clientSessionId] = Meteor.setInterval(function() {
-        var clientSession = ClientSessions.find(clientSessionId);
-        new ClientSession(clientSession)._exchangeKey();
-      }, config._exchangeKeyEveryNSeconds * 1000);
   }
-
 });
 
 Meteor.publish('clientSessions', function(cookies) {
@@ -149,7 +145,7 @@ Meteor.publish('clientSessions', function(cookies) {
   var clientSessionId = clientSession._id;
 
   // Periodically exchange the session key
-  ClientSession.startScheduledTasks(clientSessionId);
+  clientSession.startScheduledTasks();
 
   // Prepare client session for publishing to client
   var prepareClientSession = function(clientSession) {
@@ -221,7 +217,7 @@ Meteor.publish('clientSessions', function(cookies) {
     observeClientSessions.stop();
     
     // Stop doing whatever we've scheduled
-    ClientSession.stopScheduledTasks(clientSessionId);
+    clientSession.stopScheduledTasks();
 
     // Clear the published collection and flush to the client
     // TODO this should clear everything!
