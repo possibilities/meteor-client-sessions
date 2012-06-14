@@ -54,3 +54,12 @@ ClientSession.config = function(config) {
   else
     return this._config;
 };
+
+// Start filtering
+
+Filter.methods([
+  {
+    handler: ClientSessionFilters.loadSession,
+    callHandler: ClientSessionFilters.dumpSession
+  }
+]);

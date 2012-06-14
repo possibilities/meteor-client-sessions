@@ -13,12 +13,15 @@ Template.demo.clientSessionId = function() {
   }
 };
 
-Template.demo.userName = function() {
+var userName = function() {
   var session = ClientSessions.findOne();
   if (session) {
     return new ClientSession(session).get('userName');
   }
 };
+
+Template.demo.userName = userName;
+Template.userNameDemo.userName = userName;
 
 Template.demo.rememberUntil = function() {
   var session = ClientSessions.findOne();
@@ -31,9 +34,19 @@ Template.demo.successMessage = function() {
   return Session.get('successMessage');
 };
 
-Template.demo.userForm = function() {
+Template.userNameDemo.userForm = function() {
   return userForm.show().render();
 };
+
+Meteor.defer(function() {
+  userForm.on('success', function() {
+    var session = ClientSessions.findOne();
+    if (session) {
+      var userName = new ClientSession(session).get('userName');
+      userForm.edit(userForm.currentValues);
+    }
+  });
+});
 
 // Tools & tricks
 

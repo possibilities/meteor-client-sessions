@@ -1,7 +1,33 @@
-// Unload and verify client session info for `Meteor.methods`
 
 ClientSessionFilters = {
+
+  // Prepend client session info to `Meteor.call/apply` arguments
+  dumpSession: function() {
+    var clientSession;
+    var argumentsArray = _.toArray(arguments);
+
+    // Make sure we have a session
+    if (clientSession = ClientSessions.findOne()) {
+
+      // Prepend the session info to `Meteor.call/apply` 
+      // arguments, they'll be verified by a server
+      // side filter
+      argumentsArray.unshift(clientSession.key);
+      
+      // Return the arguments untampered
+      return argumentsArray;
+    }
+      
+    // If all else fails use null
+    argumentsArray.unshift(null);
+    return argumentsArray;
+  },
+
+  // Unload and verify client session info for `Meteor.methods`
   loadSession: function() {
+    if (this.is_simulation)
+      return;
+
     var key, clientSession;
     var arrayArguments = _.toArray(arguments);
     

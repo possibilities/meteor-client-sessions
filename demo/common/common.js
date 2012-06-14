@@ -23,8 +23,8 @@ User = Model.extend({
 var userForm = new InlineForm({
   name: 'user',
   modelClass: User,
-  method: 'saveUser',
   noInputLabels: true,
+  method: 'saveUser',
   clearOnSuccess: false,
   inputs: [
     'name', {
@@ -33,7 +33,7 @@ var userForm = new InlineForm({
       as: 'actionText',
       action: {
         label: 'Do it!',
-        classes: 'submit-action btn-primary'
+        classes: 'submit-action btn btn-primary'
       }
     }
   ]

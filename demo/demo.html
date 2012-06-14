@@ -38,20 +38,24 @@
           </div>
         </div>
 
-        <div class="well userNameWell">
-          {{#if userName}}
-            <div class="pull-right"><em>Your name is</em> <span class="label label-success">{{userName}}</span></div>
-          {{/if}}
-
-          <h3>Add your name to your session!</h3>
-
-          {{{userForm}}}
-        </div>
+        {{> userNameDemo}}
       {{else}}
         <div class="well">
           <em>No session... you shouldn't see this for very long.</em>
         </div>
       {{/if}}
     </div>
+  </div>
+</template>
+
+<template name="userNameDemo">
+  <div class="well userNameWell">
+    {{#if userName}}
+      <div class="pull-right"><em>Your name is</em> <span class="label label-success">{{userName}}</span></div>
+    {{/if}}
+
+    <h3>Add your name to your session!</h3>
+
+    {{{userForm}}}
   </div>
 </template>

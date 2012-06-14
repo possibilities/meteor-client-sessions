@@ -1,3 +1,0 @@
-Filter.methods([
-  ClientSessionFilters.loadSession
-]);
