@@ -2,6 +2,8 @@
 
 A smart package for tracking clients across requests
 
+*Note: This lib is not going to be developed further until meteor's core auth is finished. Potentially there's nothing in this project worth keeping, we'll see.*
+
 [Check out the demo!](http://client-sessions.meteor.com/)
 
 ## Usage
